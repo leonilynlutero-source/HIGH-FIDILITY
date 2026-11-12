@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resolved reports</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="ars" data-role="admin">
+<main>
+  <header class="head">
+    <div>
+      <h1>Resolved reports <span class="pill" id="total">0</span></h1>
+      <p class="sub">Reports that are finished. You can delete the ones you no longer need.</p>
+    </div>
+    <a class="back" href="home-admin.html">&larr; Back to admin home</a>
+  </header>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <span class="count" id="count"></span>
+    <button type="button" class="ghost danger" id="clearAll">Delete all resolved</button>
+  </div>
+
+  <p class="notice" id="notice" role="status" hidden></p>
+
+  <ul class="cards" id="cards"></ul>
+
+  <p class="empty" id="empty" hidden></p>
+</main>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var STORES = [
+    { key: "incidentReports",  kind: "Incident",  type: "incident" },
+    { key: "complaintReports", kind: "Complaint", type: "complaint" }
+  ];
+
+  var items = [];            // every report: { store, kind, type, r }
+  var open = {};             // references whose details are showing
+  var confirming = {};       // references waiting for "Yes, delete"
+  var lastDeleted = [];      // for Undo
+
+  function read(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return []; }
+  }
+  function write(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+
+  function load() {
+    items = [];
+    STORES.forEach(function (s) {
+      read(s.key).forEach(function (r) { items.push({ store: s.key, kind: s.kind, type: s.type, r: r }); });
+    });
+  }
+
+  function norm(s) {
+    s = String(s || "").toLowerCase();
+    if (s.indexOf("resolv") > -1) return "Resolved";
+    if (s.indexOf("review") > -1 || s.indexOf("approv") > -1) return "Under review";
+    return "Pending";
+  }
+
+  function typeOf(r) { return r.type || r.subject || r.category || ""; }
+
+  function shortDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function resolved() {
+    return items
+      .filter(function (x) { return norm(x.r.status) === "Resolved"; })
+      .sort(function (a, b) { return new Date(b.r.submitted) - new Date(a.r.submitted); });
+  }
+
+  function render() {
+    var list = resolved();
+    $("total").textContent = list.length;
+    var box = $("cards");
+    box.innerHTML = "";
+
+    list.forEach(function (x) {
+      var r = x.r;
+      var li = el("li", "card " + x.type);
+
+      var top = el("div", "top");
+      var left = el("div");
+      left.appendChild(el("span", "tag " + x.type, x.kind));
+      left.appendChild(el("b", "ref", r.ref));
+      top.appendChild(left);
+      top.appendChild(el("span", "done", "Resolved"));
+      li.appendChild(top);
+
+      var title = typeOf(r);
+      if (title) li.appendChild(el("p", "what", title));
+      if (r.location) li.appendChild(el("p", "where", "Location: " + r.location));
+      if (r.submitted) li.appendChild(el("p", "where", "Submitted: " + shortDate(r.submitted)));
+      if (r.description) li.appendChild(el("p", "desc" + (open[r.ref] ? " full" : ""), r.description));
+
+      if (open[r.ref]) {
+        var dl = el("dl", "more");
+        [["Happened", r.date ? r.date + (r.time ? " at " + r.time : "") : ""],
+         ["Photo", r.photo]].forEach(function (p) {
+          if (!p[1]) return;
+          dl.appendChild(el("dt", "", p[0]));
+          dl.appendChild(el("dd", "", p[1]));
+        });
+        if (dl.children.length) li.appendChild(dl);
+      }
+
+      var act = el("div", "acts");
+
+      if (confirming[r.ref]) {
+        // Second step: make sure the admin really wants to delete
+        act.appendChild(el("span", "ask", "Delete this report permanently?"));
+
+        var no = el("button", "ghost", "Cancel");
+        no.type = "button";
+        no.addEventListener("click", function () { confirming[r.ref] = false; render(); });
+
+        var yes = el("button", "solid-danger", "Yes, delete");
+        yes.type = "button";
+        yes.addEventListener("click", function () { remove([x]); });
+
+        act.appendChild(no);
+        act.appendChild(yes);
+      } else {
+        var view = el("button", "ghost", open[r.ref] ? "Hide details" : "View details");
+        view.type = "button";
+        view.addEventListener("click", function () { open[r.ref] = !open[r.ref]; render(); });
+
+        var del = el("button", "ghost danger", "Delete");
+        del.type = "button";
+        del.setAttribute("aria-label", "Delete report " + r.ref);
+        del.addEventListener("click", function () { confirming[r.ref] = true; render(); });
+
+        act.appendChild(view);
+        act.appendChild(del);
+      }
+      li.appendChild(act);
+      box.appendChild(li);
+    });
+
+    $("count").textContent = list.length + " resolved report" + (list.length === 1 ? "" : "s");
+    $("toolbar").hidden = list.length === 0;
+
+    var empty = $("empty");
+    if (list.length === 0) {
+      empty.textContent = "No resolved reports yet.";
+      empty.hidden = false;
+    } else {
+      empty.hidden = true;
+    }
+  }
+
+  // Delete one or more reports, then offer Undo
+  function remove(list) {
+    var gone = {};
+    list.forEach(function (x) { gone[x.store + "|" + x.r.ref] = true; });
+
+    STORES.forEach(function (s) {
+      var keep = read(s.key).filter(function (r) { return !gone[s.key + "|" + r.ref]; });
+      write(s.key, keep);
+    });
+
+    items = items.filter(function (x) { return !gone[x.store + "|" + x.r.ref]; });
+    list.forEach(function (x) { confirming[x.r.ref] = false; });
+    lastDeleted = list;
+
+    var n = $("notice");
+    n.innerHTML = "";
+    n.appendChild(document.createTextNode(
+      (list.length === 1 ? list[0].r.ref + " was deleted. " : list.length + " reports were deleted. ")));
+    var undo = el("button", "link", "Undo");
+    undo.type = "button";
+    undo.addEventListener("click", restore);
+    n.appendChild(undo);
+    n.hidden = false;
+    render();
+  }
+
+  function restore() {
+    lastDeleted.forEach(function (x) {
+      var all = read(x.store);
+      all.push(x.r);
+      write(x.store, all);
+      items.push(x);
+    });
+    lastDeleted = [];
+    $("notice").hidden = true;
+    render();
+  }
+
+  $("clearAll").addEventListener("click", function () {
+    var list = resolved();
+    if (list.length === 0) return;
+    if (!confirm("Delete all " + list.length + " resolved reports? You can undo right after.")) return;
+    remove(list);
+  });
+
+  load();
+  render();
+</script>
+</body>
+</html>

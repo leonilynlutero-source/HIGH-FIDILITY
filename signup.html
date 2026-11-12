@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="wide" data-role="user">
+<main>
+  <section id="signup">
+    <a class="back" href="user.html?role=user">&larr; Back to sign in</a>
+    <h1>Create account</h1>
+    <p class="sub">Enter your information to create your account.</p>
+
+    <form id="f" novalidate onsubmit="return signup()">
+
+      <h2 class="group">Personal information</h2>
+      <div class="row">
+        <label class="f">First name
+          <input type="text" id="first" autocomplete="given-name">
+        </label>
+        <label class="f">Last name
+          <input type="text" id="last" autocomplete="family-name">
+        </label>
+      </div>
+      <div class="row">
+        <label class="f">Birthdate
+          <input type="date" id="dob" autocomplete="bday">
+        </label>
+        <label class="f">Sex
+          <select id="sex">
+            <option value="">Select</option>
+            <option>Female</option>
+            <option>Male</option>
+            <option>Prefer not to say</option>
+          </select>
+        </label>
+      </div>
+
+      <h2 class="group">Contact information</h2>
+      <div class="row">
+        <label class="f">Email
+          <input type="email" id="email" autocomplete="email">
+        </label>
+        <label class="f">Mobile number
+          <input type="tel" id="phone" autocomplete="tel" placeholder="09XX XXX XXXX">
+        </label>
+      </div>
+      <label class="f">Street address
+        <input type="text" id="street" autocomplete="street-address">
+      </label>
+      <div class="row">
+        <label class="f">Barangay
+          <input type="text" id="brgy">
+        </label>
+        <label class="f">City
+          <input type="text" id="city" autocomplete="address-level2">
+        </label>
+      </div>
+
+      <h2 class="group">Account details</h2>
+      <label class="f">Username
+        <input type="text" id="u" autocomplete="username">
+      </label>
+      <div class="row">
+        <label class="f">Password
+          <input type="password" id="p" autocomplete="new-password">
+        </label>
+        <label class="f">Confirm password
+          <input type="password" id="p2" autocomplete="new-password">
+        </label>
+      </div>
+
+      <p class="err" id="err" role="alert"></p>
+      <button class="role" type="button" onclick="location.href='user.html?role=admin'">Confirm</button>
+    </form>
+  </section>
+</main>
+
+<script>
+</script>
+</body>
+</html>

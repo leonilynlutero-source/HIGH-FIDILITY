@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="notif" data-role="user">
+<main>
+  <header class="head">
+    <div>
+      <h1>Notifications</h1>
+      <p class="sub" id="summary"></p>
+    </div>
+    <a class="back" href="home.html">&larr; Back to home</a>
+  </header>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <button type="button" class="ghost" id="readAll">Mark all as read</button>
+    <button type="button" class="ghost danger" id="clearAll">Clear all</button>
+  </div>
+
+  <ul class="list" id="list"></ul>
+
+  <div class="empty" id="empty" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 1 1 12 0v6l2 2H4l2-2z"/><path d="M10 21h4"/></svg>
+    <p><b>No notifications</b></p>
+    <p>You will see updates here when you submit an incident or complaint report.</p>
+  </div>
+</main>
+
+<script>
+  var NKEY = "notifications";          // saved notifications
+  var DKEY = "deletedNotifications";   // ids the user deleted (so they don't come back)
+
+  function read(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return []; }
+  }
+  function write(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+
+  var notes = read(NKEY);
+  var deleted = read(DKEY);
+
+  // Create a notification for every submitted report that doesn't have one yet.
+  function sync() {
+    var have = {};
+    notes.forEach(function (n) { have[n.id] = true; });
+    deleted.forEach(function (id) { have[id] = true; });
+
+    read("incidentReports").forEach(function (r) {
+      var id = "incident-" + r.ref;
+      if (have[id]) return;
+      notes.push({
+        id: id, kind: "incident", ref: r.ref, read: false, time: r.submitted,
+        title: "Incident report submitted",
+        message: "Your " + String(r.type || "incident").toLowerCase() + " report" +
+                 (r.location ? " at " + r.location : "") + " was received."
+      });
+    });
+
+    read("complaintReports").forEach(function (r) {
+      var id = "complaint-" + r.ref;
+      if (have[id]) return;
+      var about = r.subject || r.type || r.category;
+      notes.push({
+        id: id, kind: "complaint", ref: r.ref, read: false, time: r.submitted,
+        title: "Complaint report submitted",
+        message: "Your complaint" + (about ? " about " + String(about).toLowerCase() : "") + " was received."
+      });
+    });
+
+    write(NKEY, notes);
+  }
+
+  function ago(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    var s = Math.floor((Date.now() - d) / 1000);
+    if (s < 60) return "Just now";
+    if (s < 3600) return Math.floor(s / 60) + " min ago";
+    if (s < 86400) return Math.floor(s / 3600) + " hr ago";
+    if (s < 172800) return "Yesterday";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  var icons = {
+    incident:  '<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/>',
+    complaint: '<path d="M4 4h16v12H8l-4 4V4z"/><path d="M8 9h8M8 12h5"/>'
+  };
+
+  function render() {
+    var list = document.getElementById("list");
+    list.innerHTML = "";
+
+    // newest first
+    var sorted = notes.slice().sort(function (a, b) { return new Date(b.time) - new Date(a.time); });
+
+    sorted.forEach(function (n) {
+      var li = document.createElement("li");
+      li.className = "item" + (n.read ? "" : " unread");
+
+      var ico = document.createElement("div");
+      ico.className = "ico " + n.kind;
+      ico.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + (icons[n.kind] || icons.incident) + "</svg>";
+
+      var body = document.createElement("div");
+      body.className = "body";
+
+      var t = document.createElement("b");
+      t.textContent = n.title;
+      if (!n.read) {
+        var dot = document.createElement("span");
+        dot.className = "dot";
+        dot.setAttribute("aria-label", "Unread");
+        t.appendChild(dot);
+      }
+
+      var m = document.createElement("p");
+      m.textContent = n.message;
+
+      var meta = document.createElement("small");
+      meta.textContent = (n.ref ? "Ref " + n.ref + "  \u00b7  " : "") + ago(n.time);
+
+      body.appendChild(t);
+      body.appendChild(m);
+      body.appendChild(meta);
+
+      var actions = document.createElement("div");
+      actions.className = "row-actions";
+
+      if (!n.read) {
+        var rd = document.createElement("button");
+        rd.type = "button";
+        rd.className = "ghost small";
+        rd.textContent = "Mark as read";
+        rd.addEventListener("click", function () { n.read = true; save(); });
+        actions.appendChild(rd);
+      }
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "ghost small danger";
+      del.textContent = "Delete";
+      del.setAttribute("aria-label", "Delete notification: " + n.title);
+      del.addEventListener("click", function () { remove(n.id); });
+      actions.appendChild(del);
+
+      li.appendChild(ico);
+      li.appendChild(body);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+
+    var unread = notes.filter(function (n) { return !n.read; }).length;
+    document.getElementById("summary").textContent =
+      notes.length === 0 ? "You're all caught up."
+      : unread === 0 ? "All notifications read."
+      : unread + " unread of " + notes.length;
+
+    document.getElementById("toolbar").hidden = notes.length === 0;
+    document.getElementById("empty").hidden = notes.length !== 0;
+    document.getElementById("readAll").disabled = unread === 0;
+  }
+
+  function save() { write(NKEY, notes); render(); }
+
+  function remove(id) {
+    notes = notes.filter(function (n) { return n.id !== id; });
+    if (deleted.indexOf(id) < 0) deleted.push(id);
+    write(DKEY, deleted);
+    save();
+  }
+
+  document.getElementById("readAll").addEventListener("click", function () {
+    notes.forEach(function (n) { n.read = true; });
+    save();
+  });
+
+  document.getElementById("clearAll").addEventListener("click", function () {
+    if (!confirm("Delete all notifications?")) return;
+    notes.forEach(function (n) { if (deleted.indexOf(n.id) < 0) deleted.push(n.id); });
+    notes = [];
+    write(DKEY, deleted);
+    save();
+  });
+
+  sync();
+  render();
+</script>
+</body>
+</html>

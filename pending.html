@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pending reports</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="apd" data-role="admin">
+<main>
+  <header class="head">
+    <div>
+      <h1>Pending reports <span class="pill" id="total">0</span></h1>
+      <p class="sub">Reports waiting for your review. Oldest reports are shown first.</p>
+    </div>
+    <a class="back" href="home-admin.html">&larr; Back to admin home</a>
+  </header>
+
+  <div class="bar">
+    <label class="search" for="q">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+      <input type="search" id="q" placeholder="Search by reference, type, location..." autocomplete="off">
+    </label>
+
+    <select id="kind" aria-label="Report type">
+      <option value="all">All types</option>
+      <option value="incident">Incident reports</option>
+      <option value="complaint">Complaint reports</option>
+    </select>
+
+    <select id="sort" aria-label="Sort order">
+      <option value="oldest">Oldest first</option>
+      <option value="newest">Newest first</option>
+    </select>
+  </div>
+
+  <p class="notice" id="notice" role="status" hidden></p>
+  <p class="count" id="count"></p>
+
+  <ul class="cards" id="cards"></ul>
+
+  <p class="empty" id="empty" hidden></p>
+</main>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var STORES = [
+    { key: "incidentReports",  kind: "Incident",  type: "incident" },
+    { key: "complaintReports", kind: "Complaint", type: "complaint" }
+  ];
+
+  var items = [];            // every report: { store, kind, type, r }
+  var query = "", kind = "all", sort = "oldest";
+  var open = {};             // references whose details are showing
+  var last = null;           // last change, for Undo
+
+  function read(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return []; }
+  }
+
+  function load() {
+    items = [];
+    STORES.forEach(function (s) {
+      read(s.key).forEach(function (r) { items.push({ store: s.key, kind: s.kind, type: s.type, r: r }); });
+    });
+  }
+
+  function norm(s) {
+    s = String(s || "").toLowerCase();
+    if (s.indexOf("resolv") > -1) return "Resolved";
+    if (s.indexOf("review") > -1 || s.indexOf("approv") > -1) return "Under review";
+    return "Pending";
+  }
+
+  function typeOf(r) { return r.type || r.subject || r.category || ""; }
+
+  function waiting(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return { text: "", late: false };
+    var mins = Math.floor((Date.now() - d) / 60000);
+    if (mins < 1)   return { text: "Just now", late: false };
+    if (mins < 60)  return { text: "Waiting " + mins + " min", late: false };
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24)   return { text: "Waiting " + hrs + " hr", late: false };
+    var days = Math.floor(hrs / 24);
+    return { text: "Waiting " + days + " day" + (days === 1 ? "" : "s"), late: days >= 3 };
+  }
+
+  function matches(x) {
+    if (norm(x.r.status) !== "Pending") return false;
+    if (kind !== "all" && x.type !== kind) return false;
+    if (!query) return true;
+    var hay = [x.r.ref, x.kind, typeOf(x.r), x.r.location, x.r.description].join(" ").toLowerCase();
+    return query.split(/\s+/).every(function (w) { return hay.indexOf(w) > -1; });
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function render() {
+    var allPending = items.filter(function (x) { return norm(x.r.status) === "Pending"; });
+    var list = items.filter(matches).sort(function (a, b) {
+      var d = new Date(a.r.submitted) - new Date(b.r.submitted);
+      return sort === "oldest" ? d : -d;
+    });
+
+    $("total").textContent = allPending.length;
+    var box = $("cards");
+    box.innerHTML = "";
+
+    list.forEach(function (x) {
+      var r = x.r;
+      var w = waiting(r.submitted);
+
+      var li = el("li", "card " + x.type);
+
+      // Top row: reference + waiting time
+      var top = el("div", "top");
+      var left = el("div");
+      left.appendChild(el("span", "tag " + x.type, x.kind));
+      left.appendChild(el("b", "ref", r.ref));
+      top.appendChild(left);
+      top.appendChild(el("span", "wait" + (w.late ? " late" : ""), w.text));
+      li.appendChild(top);
+
+      // Summary
+      var title = typeOf(r);
+      if (title) li.appendChild(el("p", "what", title));
+      if (r.location) li.appendChild(el("p", "where", "Location: " + r.location));
+      if (r.description) li.appendChild(el("p", "desc" + (open[r.ref] ? " full" : ""), r.description));
+
+      // Extra details
+      if (open[r.ref]) {
+        var dl = el("dl", "more");
+        [["Happened", r.date ? r.date + (r.time ? " at " + r.time : "") : ""],
+         ["Photo", r.photo]].forEach(function (p) {
+          if (!p[1]) return;
+          dl.appendChild(el("dt", "", p[0]));
+          dl.appendChild(el("dd", "", p[1]));
+        });
+        if (dl.children.length) li.appendChild(dl);
+      }
+
+      // Actions
+      var act = el("div", "acts");
+
+      var view = el("button", "ghost", open[r.ref] ? "Hide details" : "View details");
+      view.type = "button";
+      view.addEventListener("click", function () { open[r.ref] = !open[r.ref]; render(); });
+
+      var review = el("button", "go", "Start review");
+      review.type = "button";
+      review.addEventListener("click", function () { move(x, "Under review"); });
+
+      var done = el("button", "ghost ok", "Mark resolved");
+      done.type = "button";
+      done.addEventListener("click", function () { move(x, "Resolved"); });
+
+      act.appendChild(view);
+      act.appendChild(done);
+      act.appendChild(review);
+      li.appendChild(act);
+
+      box.appendChild(li);
+    });
+
+    $("count").textContent = allPending.length === 0 ? "" :
+      "Showing " + list.length + " of " + allPending.length + " pending report" + (allPending.length === 1 ? "" : "s");
+
+    var empty = $("empty");
+    if (allPending.length === 0) {
+      empty.textContent = "No pending reports. You're all caught up.";
+      empty.hidden = false;
+    } else if (list.length === 0) {
+      empty.textContent = "No pending reports match your search.";
+      empty.hidden = false;
+    } else {
+      empty.hidden = true;
+    }
+  }
+
+  function save(x, value) {
+    var all = read(x.store);
+    all.forEach(function (r) { if (r.ref === x.r.ref) r.status = value; });
+    try { localStorage.setItem(x.store, JSON.stringify(all)); } catch (e) {}
+    x.r.status = value;
+  }
+
+  // Move a report out of Pending, and offer Undo
+  function move(x, value) {
+    save(x, value);
+    last = { x: x, from: "Pending" };
+
+    var n = $("notice");
+    n.innerHTML = "";
+    n.appendChild(document.createTextNode(x.r.ref + " moved to " + value + ". "));
+    var undo = el("button", "link", "Undo");
+    undo.type = "button";
+    undo.addEventListener("click", function () {
+      if (!last) return;
+      save(last.x, last.from);
+      last = null;
+      n.hidden = true;
+      render();
+    });
+    n.appendChild(undo);
+    n.hidden = false;
+    render();
+  }
+
+  $("q").addEventListener("input", function () { query = this.value.trim().toLowerCase(); render(); });
+  $("kind").addEventListener("change", function () { kind = this.value; render(); });
+  $("sort").addEventListener("change", function () { sort = this.value; render(); });
+
+  load();
+  render();
+</script>
+</body>
+</html>

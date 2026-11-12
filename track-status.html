@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track status</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="track" data-role="user">
+<main>
+  <header class="head">
+    <div>
+      <h1>Track status</h1>
+      <p class="sub">Enter the reference number you received when you submitted your report.</p>
+    </div>
+    <a class="back" href="home.html">&larr; Back to home</a>
+  </header>
+
+  <form id="f" class="search" novalidate onsubmit="return search()">
+    <label class="f" for="ref">Reference number
+      <input type="text" id="ref" placeholder="Example: INC-LX3K9A2" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    </label>
+    <button class="go" type="submit">Search</button>
+  </form>
+
+  <p class="err" id="err" role="alert"></p>
+
+  <div class="recent" id="recent" hidden>
+    <span class="lbl">Your recent reports</span>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <section class="result" id="result" hidden aria-live="polite">
+    <div class="top">
+      <div>
+        <small id="kind"></small>
+        <h2 id="rref"></h2>
+      </div>
+      <span class="badge" id="badge"></span>
+    </div>
+    <p class="msg" id="msg"></p>
+
+    <ol class="steps" id="steps">
+      <li data-step="Pending"><span class="n">1</span><b>Pending</b><small>Received, waiting for review</small></li>
+      <li data-step="Approved"><span class="n">2</span><b>Approved</b><small>Reviewed and accepted</small></li>
+      <li data-step="Resolved"><span class="n">3</span><b>Resolved</b><small>The issue is resolved</small></li>
+    </ol>
+
+    <dl class="details" id="details"></dl>
+  </section>
+</main>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  function read(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return []; }
+  }
+
+  // Every report saved by the incident and complaint pages
+  function allReports() {
+    var out = [];
+    read("incidentReports").forEach(function (r) { out.push({ kind: "Incident report", store: "incidentReports", r: r }); });
+    read("complaintReports").forEach(function (r) { out.push({ kind: "Complaint report", store: "complaintReports", r: r }); });
+    return out;
+  }
+
+  // Turn whatever is saved into one of: Pending, Approved, Resolved
+  function norm(s) {
+    s = String(s || "").toLowerCase();
+    if (s.indexOf("resolv") > -1) return "Resolved";
+    if (s.indexOf("approv") > -1) return "Approved";
+    return "Pending";
+  }
+
+  var messages = {
+    Pending:  "Your report was received and is waiting for review.",
+    Approved: "Your report was reviewed and approved. It is now being handled.",
+    Resolved: "Your report has been resolved. Thank you for letting us know."
+  };
+
+  var current = null;   // the report currently shown
+
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  function row(dl, label, value) {
+    if (!value) return;
+    var dt = document.createElement("dt");
+    dt.textContent = label;
+    var dd = document.createElement("dd");
+    dd.textContent = value;
+    dl.appendChild(dt);
+    dl.appendChild(dd);
+  }
+
+  function show(item) {
+    current = item;
+    var r = item.r;
+    var status = norm(r.status);
+
+    $("kind").textContent = item.kind;
+    $("rref").textContent = r.ref;
+    $("msg").textContent = messages[status];
+
+    var badge = $("badge");
+    badge.textContent = status;
+    badge.className = "badge " + status.toLowerCase();
+
+    // Progress steps
+    var order = ["Pending", "Approved", "Resolved"];
+    var at = order.indexOf(status);
+    Array.prototype.forEach.call($("steps").children, function (li, i) {
+      li.className = i < at ? "done" : i === at ? "now" : "";
+    });
+
+    // Details
+    var dl = $("details");
+    dl.innerHTML = "";
+    row(dl, "Type", r.type || r.subject || r.category);
+    row(dl, "Location", r.location);
+    if (r.date) row(dl, "Happened on", r.date + (r.time ? " at " + r.time : ""));
+    row(dl, "Submitted", fmtDate(r.submitted));
+    row(dl, "Description", r.description);
+    row(dl, "Photo", r.photo);
+
+    $("result").hidden = false;
+  }
+
+  function search() {
+    var q = $("ref").value.trim().toUpperCase();
+    $("err").textContent = "";
+    $("result").hidden = true;
+
+    if (q === "") {
+      $("err").textContent = "Enter a reference number.";
+      return false;
+    }
+    var found = allReports().filter(function (x) { return String(x.r.ref).toUpperCase() === q; })[0];
+    if (!found) {
+      $("err").textContent = "No report found for " + q + ". Check the number and try again.";
+      return false;
+    }
+    show(found);
+    return false;
+  }
+
+  // Quick links to recent reports
+  function showRecent() {
+    var list = allReports()
+      .sort(function (a, b) { return new Date(b.r.submitted) - new Date(a.r.submitted); })
+      .slice(0, 5);
+    if (list.length === 0) return;
+    list.forEach(function (x) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = x.r.ref;
+      b.addEventListener("click", function () { $("ref").value = x.r.ref; search(); });
+      $("chips").appendChild(b);
+    });
+    $("recent").hidden = false;
+  }
+
+  showRecent();
+
+  // Opened with ?ref=INC-XXXX (from the "Track status" button after submitting)
+  var m = location.search.match(/[?&]ref=([^&]+)/);
+  if (m) {
+    $("ref").value = decodeURIComponent(m[1]);
+    search();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Complaint reports</title>
+<link rel="stylesheet" href="../CSS/style.css">
+<style>
+  /* Extra styles for full details, the photo viewer and the edit form (no changes to style.css needed) */
+  .ain .full-details { margin: 10px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+  .ain .full-details dt { color: #5a6b82; font-size: 0.85rem; }
+  .ain .full-details dd { margin: 0; font-weight: bold; word-break: break-word; }
+  .ain .full-details dd.plain { font-weight: normal; white-space: pre-wrap; }
+
+  .ain .photo { margin-top: 14px; }
+  .ain .photo .cap { display: block; margin-bottom: 6px; color: #5a6b82; font-size: 0.85rem; }
+  .ain .photo button {
+    display: block; padding: 0; background: none; border: 0; cursor: zoom-in;
+  }
+  .ain .photo img {
+    display: block; max-width: 100%; max-height: 320px;
+    border: 1px solid #c9d8ec; border-radius: 8px;
+  }
+  .ain .photo .hint { display: block; margin-top: 6px; color: #5a6b82; font-size: 0.8rem; }
+  .ain .photo .none { margin: 0; color: #5a6b82; font-size: 0.9rem; }
+
+  .lightbox {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; background: rgba(10, 25, 50, 0.85);
+  }
+  .lightbox[hidden] { display: none; }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; background: #ffffff; }
+  .lightbox .x {
+    position: absolute; top: 12px; right: 12px;
+    width: 40px; height: 40px;
+    font-size: 1.6rem; line-height: 1; color: #1a2b44;
+    background: #ffffff; border: 0; border-radius: 50%; cursor: pointer;
+  }
+
+  /* Edit form */
+  .ain .edit-form { margin: 10px 0 0; display: grid; gap: 12px; }
+  .ain .edit-form label { display: block; margin-bottom: 4px; color: #5a6b82; font-size: 0.85rem; }
+  .ain .edit-form input,
+  .ain .edit-form select,
+  .ain .edit-form textarea {
+    width: 100%; box-sizing: border-box; padding: 8px 10px;
+    font: inherit; background: #ffffff;
+    border: 1px solid #c9d8ec; border-radius: 6px;
+  }
+  .ain .edit-form textarea { min-height: 110px; resize: vertical; }
+  .ain .edit-form .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  @media (max-width: 480px) {
+    .ain .full-details { grid-template-columns: 1fr; gap: 0; }
+    .ain .full-details dd { margin-bottom: 8px; }
+  }
+</style>
+</head>
+<body class="ain" data-role="admin">
+<main>
+  <header class="head">
+    <div>
+      <h1>Complaint reports <span class="pill" id="total">0</span></h1>
+      <p class="sub">Every complaint filed by users. Incident reports are kept separate.</p>
+    </div>
+    <a class="back" href="home-admin.html">&larr; Back to admin home</a>
+  </header>
+
+  <!-- Show all, or only one status -->
+  <nav class="tabs" id="tabs" aria-label="Filter by status">
+    <button type="button" class="tab active" data-filter="All">All <span id="cAll">0</span></button>
+    <button type="button" class="tab" data-filter="Pending">Pending <span id="cPending">0</span></button>
+    <button type="button" class="tab" data-filter="Resolved">Resolved <span id="cResolved">0</span></button>
+  </nav>
+
+  <ul class="cards" id="cards"></ul>
+
+  <p class="empty" id="empty" hidden></p>
+</main>
+
+<!-- Full-size photo viewer -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-label="Photo uploaded by the user">
+  <button type="button" class="x" id="closeBox" aria-label="Close photo">&times;</button>
+  <img id="big" alt="Photo uploaded by the user">
+</div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Only complaint reports are read here. Incident reports are stored separately.
+  var KEY = "complaintReports";
+
+  // Fields the page handles itself (never shown as plain fields or edited in the form)
+  var HIDDEN = { ref: 1, status: 1, submitted: 1, updated: 1, photo: 1, photoData: 1 };
+  // Fields that are long text
+  var LONG_KEYS = ["description", "details", "message", "complaint", "content"];
+  // Friendly labels (any other field gets a label made from its name)
+  var LABELS = {
+    type: "Type of complaint",
+    subject: "Subject",
+    location: "Location / address",
+    date: "Date it happened",
+    time: "Time it happened",
+    description: "Description",
+    details: "Details",
+    message: "Message",
+    complaint: "Complaint",
+    name: "Name",
+    email: "Email",
+    phone: "Phone",
+    contact: "Contact"
+  };
+
+  var items = [];
+  var filter = "All";
+  var open = {};
+  var editing = {};
+
+  function read(key) {
+    try {
+      var data = JSON.parse(localStorage.getItem(key) || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (e) { return []; }
+  }
+
+  function norm(s) {
+    s = String(s || "").toLowerCase();
+    if (s.indexOf("resolv") > -1) return "Resolved";
+    if (s.indexOf("review") > -1 || s.indexOf("approv") > -1) return "Under review";
+    return "Pending";
+  }
+
+  function statusClass(s) { return s === "Resolved" ? "resolved" : s === "Under review" ? "review" : "pending"; }
+
+  function shortDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function longDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  // "2026-11-06" + "14:30" -> "November 6, 2026 at 2:30 PM"
+  function happened(date, time) {
+    if (!date) return "";
+    var d = new Date(date + "T" + (time || "00:00"));
+    if (isNaN(d)) return date + (time ? " at " + time : "");
+    var day = d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    if (!time) return day;
+    return day + " at " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  // First non-empty value among several possible field names
+  function pick(r, keys) {
+    for (var i = 0; i < keys.length; i++) {
+      if (r[keys[i]]) return String(r[keys[i]]);
+    }
+    return "";
+  }
+
+  function labelFor(key) {
+    if (LABELS[key]) return LABELS[key];
+    var s = key.replace(/([A-Z])/g, " $1").replace(/[_-]+/g, " ").trim();
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  }
+
+  function isLong(key, value) {
+    var v = String(value || "");
+    return LONG_KEYS.indexOf(key) > -1 || v.length > 80 || v.indexOf("\n") > -1;
+  }
+
+  // Which fields of this complaint can be shown / edited
+  function fieldKeys(r) {
+    return Object.keys(r).filter(function (k) {
+      var t = typeof r[k];
+      return !HIDDEN[k] && (t === "string" || t === "number");
+    });
+  }
+
+  function counts() {
+    var c = { "Pending": 0, "Under review": 0, "Resolved": 0 };
+    items.forEach(function (r) { c[norm(r.status)]++; });
+    $("total").textContent = items.length;
+    $("cAll").textContent = items.length;
+    $("cPending").textContent = c["Pending"];
+    $("cResolved").textContent = c["Resolved"];
+  }
+
+  function showPhoto(src) {
+    $("big").src = src;
+    $("lightbox").hidden = false;
+    $("closeBox").focus();
+  }
+  function hidePhoto() {
+    $("lightbox").hidden = true;
+    $("big").removeAttribute("src");
+  }
+  $("closeBox").addEventListener("click", hidePhoto);
+  $("lightbox").addEventListener("click", function (e) { if (e.target === this) hidePhoto(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") hidePhoto(); });
+
+  // Every detail of one complaint
+  function fullDetails(r, status) {
+    var wrap = document.createElement("div");
+
+    var dl = el("dl", "full-details");
+    function row(label, value, plain) {
+      dl.appendChild(el("dt", "", label));
+      dl.appendChild(el("dd", plain ? "plain" : "", value || "Not provided"));
+    }
+    row("Reference number", r.ref);
+    row("Status", status);
+
+    fieldKeys(r).forEach(function (k) {
+      if (k === "time" && r.date) return; // shown together with the date
+      if (k === "date") {
+        row("Date and time it happened", happened(r.date, r.time));
+      } else {
+        row(labelFor(k), String(r[k]), isLong(k, r[k]));
+      }
+    });
+
+    row("Filed on", longDate(r.submitted));
+    if (r.updated) row("Last updated", longDate(r.updated));
+    wrap.appendChild(dl);
+
+    // The photo the user uploaded (only if this complaint has one)
+    if (r.photoData || r.photo) {
+      var ph = el("div", "photo");
+      ph.appendChild(el("span", "cap", "Photo uploaded by the user"));
+      if (r.photoData) {
+        var b = el("button");
+        b.type = "button";
+        b.setAttribute("aria-label", "View the photo full size");
+        var img = el("img");
+        img.src = r.photoData;
+        img.alt = "Photo uploaded by the user for " + r.ref;
+        b.appendChild(img);
+        b.addEventListener("click", function () { showPhoto(r.photoData); });
+        ph.appendChild(b);
+        ph.appendChild(el("span", "hint", (r.photo ? r.photo + " \u00b7 " : "") + "Click the photo to enlarge it"));
+      } else {
+        ph.appendChild(el("p", "none",
+          "File name: " + r.photo + ". The picture itself was not saved."));
+      }
+      wrap.appendChild(ph);
+    }
+    return wrap;
+  }
+
+  // Save changes to one complaint, then refresh the page
+  function saveReport(ref, changes) {
+    var all = read(KEY);
+    var found = false;
+    all.forEach(function (r) {
+      if (r.ref === ref) {
+        Object.assign(r, changes, { updated: new Date().toISOString() });
+        found = true;
+      }
+    });
+    if (!found) { alert("Could not find report " + ref + "."); return; }
+    try {
+      localStorage.setItem(KEY, JSON.stringify(all));
+    } catch (e) {
+      alert("Could not save the changes. Browser storage may be full.");
+      return;
+    }
+    items = all.filter(onlyComplaints).sort(function (a, b) { return new Date(b.submitted) - new Date(a.submitted); });
+    editing[ref] = false;
+    counts();
+    render();
+  }
+
+  // The edit form for one complaint
+  function editForm(r, status) {
+    var form = el("form", "edit-form");
+    var inputs = {};
+
+    function add(label, node) {
+      var w = el("div");
+      w.appendChild(el("label", "", label));
+      w.appendChild(node);
+      form.appendChild(w);
+    }
+
+    form.appendChild(el("p", "where", "Editing " + r.ref));
+
+    // Status: Pending or Resolved
+    var statusSel = el("select");
+    ["Pending", "Resolved"].forEach(function (s) {
+      var o = el("option", "", s);
+      o.value = s;
+      statusSel.appendChild(o);
+    });
+    statusSel.value = status === "Resolved" ? "Resolved" : "Pending";
+    add("Status", statusSel);
+
+    // One input for every editable field this complaint has
+    fieldKeys(r).forEach(function (k) {
+      var node;
+      if (k === "date") {
+        node = el("input"); node.type = "date";
+      } else if (k === "time") {
+        node = el("input"); node.type = "time";
+      } else if (isLong(k, r[k])) {
+        node = el("textarea");
+      } else {
+        node = el("input"); node.type = "text";
+      }
+      node.value = r[k] === undefined || r[k] === null ? "" : String(r[k]);
+      inputs[k] = node;
+      add(labelFor(k), node);
+    });
+
+    var btns = el("div", "row-btns");
+    var save = el("button", "", "Save changes");
+    save.type = "submit";
+    var cancel = el("button", "ghost", "Cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", function () { editing[r.ref] = false; render(); });
+    btns.appendChild(save);
+    btns.appendChild(cancel);
+    form.appendChild(btns);
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var changes = { status: statusSel.value };
+      Object.keys(inputs).forEach(function (k) { changes[k] = inputs[k].value.trim(); });
+      saveReport(r.ref, changes);
+    });
+
+    return form;
+  }
+
+  function render() {
+    var list = items.filter(function (r) { return filter === "All" || norm(r.status) === filter; });
+    var box = $("cards");
+    box.innerHTML = "";
+
+    list.forEach(function (r) {
+      var status = norm(r.status);
+      var li = el("li", "card");
+
+      var top = el("div", "top");
+      top.appendChild(el("b", "ref", r.ref));
+      top.appendChild(el("span", "st " + statusClass(status), status));
+      li.appendChild(top);
+
+      if (editing[r.ref]) {
+        // Edit mode: the form replaces the details and the buttons
+        li.appendChild(editForm(r, status));
+      } else {
+        if (open[r.ref]) {
+          // Open: show every detail
+          li.appendChild(fullDetails(r, status));
+        } else {
+          // Closed: short summary
+          var headline = pick(r, ["subject", "type", "title", "category"]);
+          var body = pick(r, LONG_KEYS);
+          if (headline) li.appendChild(el("p", "what", headline));
+          if (r.location) li.appendChild(el("p", "where", "Location: " + r.location));
+          if (r.date) li.appendChild(el("p", "where", "Happened: " + happened(r.date, r.time)));
+          if (r.submitted) li.appendChild(el("p", "where", "Filed: " + shortDate(r.submitted)));
+          if (body) li.appendChild(el("p", "desc", body));
+        }
+
+        var act = el("div", "acts");
+
+        var view = el("button", "ghost", open[r.ref] ? "Hide details" : "View details");
+        view.type = "button";
+        view.addEventListener("click", function () { open[r.ref] = !open[r.ref]; render(); });
+        act.appendChild(view);
+
+        var edit = el("button", "ghost", "Edit");
+        edit.type = "button";
+        edit.addEventListener("click", function () {
+          editing[r.ref] = true;
+          open[r.ref] = false;
+          render();
+        });
+        act.appendChild(edit);
+
+        li.appendChild(act);
+      }
+
+      box.appendChild(li);
+    });
+
+    var empty = $("empty");
+    if (items.length === 0) {
+      empty.textContent = "No complaint reports yet. They will appear here when users file them.";
+      empty.hidden = false;
+    } else if (list.length === 0) {
+      empty.textContent = "No " + filter.toLowerCase() + " complaint reports.";
+      empty.hidden = false;
+    } else {
+      empty.hidden = true;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-filter") === filter);
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
+    b.addEventListener("click", function () {
+      filter = b.getAttribute("data-filter");
+      render();
+    });
+  });
+
+  // Safety: never show incident reports (INC-...) in the complaint list
+  function onlyComplaints(r) { return String(r.ref || "").indexOf("INC-") !== 0; }
+
+  items = read(KEY).filter(onlyComplaints).sort(function (a, b) { return new Date(b.submitted) - new Date(a.submitted); });
+  counts();
+  render();
+</script>
+</body>
+</html>

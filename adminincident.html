@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Incident reports</title>
+<link rel="stylesheet" href="../CSS/style.css">
+<style>
+  /* Extra styles for full details and the photo viewer (no changes to style.css needed) */
+  .ain .full-details { margin: 10px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+  .ain .full-details dt { color: #5a6b82; font-size: 0.85rem; }
+  .ain .full-details dd { margin: 0; font-weight: bold; word-break: break-word; }
+  .ain .full-details dd.plain { font-weight: normal; white-space: pre-wrap; }
+
+  .ain .photo { margin-top: 14px; }
+  .ain .photo .cap { display: block; margin-bottom: 6px; color: #5a6b82; font-size: 0.85rem; }
+  .ain .photo button {
+    display: block; padding: 0; background: none; border: 0; cursor: zoom-in;
+  }
+  .ain .photo img {
+    display: block; max-width: 100%; max-height: 320px;
+    border: 1px solid #c9d8ec; border-radius: 8px;
+  }
+  .ain .photo .hint { display: block; margin-top: 6px; color: #5a6b82; font-size: 0.8rem; }
+  .ain .photo .none { margin: 0; color: #5a6b82; font-size: 0.9rem; }
+
+  .lightbox {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; background: rgba(10, 25, 50, 0.85);
+  }
+  .lightbox[hidden] { display: none; }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; background: #ffffff; }
+  .lightbox .x {
+    position: absolute; top: 12px; right: 12px;
+    width: 40px; height: 40px;
+    font-size: 1.6rem; line-height: 1; color: #1a2b44;
+    background: #ffffff; border: 0; border-radius: 50%; cursor: pointer;
+  }
+
+  /* Edit form */
+  .ain .edit-form { margin: 10px 0 0; display: grid; gap: 12px; }
+  .ain .edit-form label { display: block; margin-bottom: 4px; color: #5a6b82; font-size: 0.85rem; }
+  .ain .edit-form input,
+  .ain .edit-form select,
+  .ain .edit-form textarea {
+    width: 100%; box-sizing: border-box; padding: 8px 10px;
+    font: inherit; background: #ffffff;
+    border: 1px solid #c9d8ec; border-radius: 6px;
+  }
+  .ain .edit-form textarea { min-height: 110px; resize: vertical; }
+  .ain .edit-form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ain .edit-form .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  @media (max-width: 480px) {
+    .ain .full-details { grid-template-columns: 1fr; gap: 0; }
+    .ain .full-details dd { margin-bottom: 8px; }
+    .ain .edit-form .two { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body class="ain" data-role="admin">
+<main>
+  <header class="head">
+    <div>
+      <h1>Incident reports <span class="pill" id="total">0</span></h1>
+      <p class="sub">Every incident report filed by users. Complaint reports are kept separate.</p>
+    </div>
+    <a class="back" href="home-admin.html">&larr; Back to admin home</a>
+  </header>
+
+  <!-- Show all, or only one status -->
+  <nav class="tabs" id="tabs" aria-label="Filter by status">
+    <button type="button" class="tab active" data-filter="All">All <span id="cAll">0</span></button>
+    <button type="button" class="tab" data-filter="Pending">Pending <span id="cPending">0</span></button>
+    <button type="button" class="tab" data-filter="Resolved">Resolved <span id="cResolved">0</span></button>
+  </nav>
+
+  <ul class="cards" id="cards"></ul>
+
+  <p class="empty" id="empty" hidden></p>
+</main>
+
+<!-- Full-size photo viewer -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-label="Photo uploaded by the user">
+  <button type="button" class="x" id="closeBox" aria-label="Close photo">&times;</button>
+  <img id="big" alt="Photo uploaded by the user">
+</div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Only incident reports are read here. Complaint reports are stored separately.
+  var KEY = "incidentReports";
+
+  var items = [];
+  var filter = "All";
+  var open = {};
+  var editing = {};
+
+  function read(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return []; }
+  }
+
+  function norm(s) {
+    s = String(s || "").toLowerCase();
+    if (s.indexOf("resolv") > -1) return "Resolved";
+    if (s.indexOf("review") > -1 || s.indexOf("approv") > -1) return "Under review";
+    return "Pending";
+  }
+
+  function statusClass(s) { return s === "Resolved" ? "resolved" : s === "Under review" ? "review" : "pending"; }
+
+  function shortDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function longDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  // "2026-11-06" + "14:30" -> "November 6, 2026 at 2:30 PM"
+  function happened(date, time) {
+    if (!date) return "";
+    var d = new Date(date + "T" + (time || "00:00"));
+    if (isNaN(d)) return date + (time ? " at " + time : "");
+    var day = d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    if (!time) return day;
+    return day + " at " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function counts() {
+    var c = { "Pending": 0, "Under review": 0, "Resolved": 0 };
+    items.forEach(function (r) { c[norm(r.status)]++; });
+    $("total").textContent = items.length;
+    $("cAll").textContent = items.length;
+    $("cPending").textContent = c["Pending"];
+    $("cResolved").textContent = c["Resolved"];
+  }
+
+  function showPhoto(src) {
+    $("big").src = src;
+    $("lightbox").hidden = false;
+    $("closeBox").focus();
+  }
+  function hidePhoto() {
+    $("lightbox").hidden = true;
+    $("big").removeAttribute("src");
+  }
+  $("closeBox").addEventListener("click", hidePhoto);
+  $("lightbox").addEventListener("click", function (e) { if (e.target === this) hidePhoto(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") hidePhoto(); });
+
+  // Every detail of one report
+  function fullDetails(r, status) {
+    var wrap = document.createElement("div");
+
+    var dl = el("dl", "full-details");
+    function row(label, value, plain) {
+      dl.appendChild(el("dt", "", label));
+      dl.appendChild(el("dd", plain ? "plain" : "", value || "Not provided"));
+    }
+    row("Reference number", r.ref);
+    row("Status", status);
+    row("Type of incident", r.type);
+    row("Location / address", r.location);
+    row("Date and time it happened", happened(r.date, r.time));
+    row("Filed on", longDate(r.submitted));
+    if (r.updated) row("Last updated", longDate(r.updated));
+    row("Description", r.description, true);
+    wrap.appendChild(dl);
+
+    // The photo the user uploaded
+    var ph = el("div", "photo");
+    ph.appendChild(el("span", "cap", "Photo uploaded by the user"));
+    if (r.photoData) {
+      var b = el("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "View the photo full size");
+      var img = el("img");
+      img.src = r.photoData;
+      img.alt = "Photo uploaded by the user for " + r.ref;
+      b.appendChild(img);
+      b.addEventListener("click", function () { showPhoto(r.photoData); });
+      ph.appendChild(b);
+      ph.appendChild(el("span", "hint", (r.photo ? r.photo + " \u00b7 " : "") + "Click the photo to enlarge it"));
+    } else if (r.photo) {
+      ph.appendChild(el("p", "none",
+        "File name: " + r.photo + ". The picture itself was not saved (this report was filed before photos were stored)."));
+    } else {
+      ph.appendChild(el("p", "none", "No photo was uploaded."));
+    }
+    wrap.appendChild(ph);
+    return wrap;
+  }
+
+  // Save changes to one report, then refresh the page
+  function saveReport(ref, changes) {
+    var all = read(KEY);
+    var found = false;
+    all.forEach(function (r) {
+      if (r.ref === ref) {
+        Object.assign(r, changes, { updated: new Date().toISOString() });
+        found = true;
+      }
+    });
+    if (!found) { alert("Could not find report " + ref + "."); return; }
+    try {
+      localStorage.setItem(KEY, JSON.stringify(all));
+    } catch (e) {
+      alert("Could not save the changes. Browser storage may be full.");
+      return;
+    }
+    items = all.sort(function (a, b) { return new Date(b.submitted) - new Date(a.submitted); });
+    editing[ref] = false;
+    counts();
+    render();
+  }
+
+  // The edit form for one report
+  function editForm(r, status) {
+    var form = el("form", "edit-form");
+
+    function add(label, node, parent) {
+      var w = el("div");
+      w.appendChild(el("label", "", label));
+      w.appendChild(node);
+      (parent || form).appendChild(w);
+      return node;
+    }
+    function input(type, value) {
+      var i = el("input");
+      i.type = type;
+      i.value = value || "";
+      return i;
+    }
+
+    var statusSel = el("select");
+    ["Pending", "Resolved"].forEach(function (s) {
+      var o = el("option", "", s);
+      o.value = s;
+      statusSel.appendChild(o);
+    });
+    statusSel.value = status === "Resolved" ? "Resolved" : "Pending";
+
+    var typeIn = input("text", r.type);
+    var locIn  = input("text", r.location);
+    var dateIn = input("date", r.date);
+    var timeIn = input("time", r.time);
+    var descIn = el("textarea");
+    descIn.value = r.description || "";
+
+    form.appendChild(el("p", "where", "Editing " + r.ref));
+    add("Status", statusSel);
+    add("Type of incident", typeIn);
+    add("Location / address", locIn);
+    var two = el("div", "two");
+    add("Date it happened", dateIn, two);
+    add("Time it happened", timeIn, two);
+    form.appendChild(two);
+    add("Description", descIn);
+
+    var btns = el("div", "row-btns");
+    var save = el("button", "", "Save changes");
+    save.type = "submit";
+    var cancel = el("button", "ghost", "Cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", function () { editing[r.ref] = false; render(); });
+    btns.appendChild(save);
+    btns.appendChild(cancel);
+    form.appendChild(btns);
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      saveReport(r.ref, {
+        status: statusSel.value,
+        type: typeIn.value.trim(),
+        location: locIn.value.trim(),
+        date: dateIn.value,
+        time: timeIn.value,
+        description: descIn.value.trim()
+      });
+    });
+
+    return form;
+  }
+
+  function render() {
+    var list = items.filter(function (r) { return filter === "All" || norm(r.status) === filter; });
+    var box = $("cards");
+    box.innerHTML = "";
+
+    list.forEach(function (r) {
+      var status = norm(r.status);
+      var li = el("li", "card");
+
+      var top = el("div", "top");
+      top.appendChild(el("b", "ref", r.ref));
+      top.appendChild(el("span", "st " + statusClass(status), status));
+      li.appendChild(top);
+
+      if (editing[r.ref]) {
+        // Edit mode: the form replaces the details and the buttons
+        li.appendChild(editForm(r, status));
+      } else {
+        if (open[r.ref]) {
+          // Open: show every detail and the photo
+          li.appendChild(fullDetails(r, status));
+        } else {
+          // Closed: short summary
+          if (r.type) li.appendChild(el("p", "what", r.type));
+          if (r.location) li.appendChild(el("p", "where", "Location: " + r.location));
+          if (r.date) li.appendChild(el("p", "where", "Happened: " + happened(r.date, r.time)));
+          if (r.submitted) li.appendChild(el("p", "where", "Filed: " + shortDate(r.submitted)));
+          if (r.description) li.appendChild(el("p", "desc", r.description));
+        }
+
+        var act = el("div", "acts");
+
+        var view = el("button", "ghost", open[r.ref] ? "Hide details" : "View details");
+        view.type = "button";
+        view.addEventListener("click", function () { open[r.ref] = !open[r.ref]; render(); });
+        act.appendChild(view);
+
+        var edit = el("button", "ghost", "Edit");
+        edit.type = "button";
+        edit.addEventListener("click", function () {
+          editing[r.ref] = true;
+          open[r.ref] = false;
+          render();
+        });
+        act.appendChild(edit);
+
+        li.appendChild(act);
+      }
+
+      box.appendChild(li);
+    });
+
+    var empty = $("empty");
+    if (items.length === 0) {
+      empty.textContent = "No incident reports yet. They will appear here when users file them.";
+      empty.hidden = false;
+    } else if (list.length === 0) {
+      empty.textContent = "No " + filter.toLowerCase() + " incident reports.";
+      empty.hidden = false;
+    } else {
+      empty.hidden = true;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
+      b.classList.toggle("active", b.getAttribute("data-filter") === filter);
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
+    b.addEventListener("click", function () {
+      filter = b.getAttribute("data-filter");
+      render();
+    });
+  });
+
+  items = read(KEY).sort(function (a, b) { return new Date(b.submitted) - new Date(a.submitted); });
+  counts();
+  render();
+</script>
+</body>
+</html>

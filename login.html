@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body data-role="user">
+<main>
+  <section id="login">
+    <h1>Sign in</h1>
+    <p class="sub">Choose how you’re signing in, then enter your details.</p>
+    <form id="f" novalidate onsubmit="return false">
+     
+      <div class="roles">
+  <button class="role" type="button" onclick="location.href='user.html?role=user'">
+    <b>User</b>
+    <small>Access your account</small>
+  </button>
+
+  <button class="role" type="button" onclick="location.href='admin.html?role=admin'">
+    <b>Admin</b>
+    <small>Manage the system</small>
+  </button>
+</div>
+     
+    <p class="err" id="err" role="alert"></p>
+    </form>
+  </section>
+
+  <section class="done" id="done" aria-live="polite">
+    <h1>Welcome, <span id="name"></span></h1>
+    <p>You’re signed in as <span class="tag" id="tag"></span></p>
+    <p id="dest"></p>
+    <button class="out" id="out" type="button">Sign out</button>
+  </section>
+</main>
+<script>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin home</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="ahub" data-role="admin">
+<main>
+  <header class="head">
+    <div>
+      <h1>Admin dashboard</h1>
+      <p class="sub">Welcome back. Here is what is happening today.</p>
+    </div>
+    <a class="out" href="login.html">Log Out</a>
+  </header>
+
+  <!-- Overview: click a card to see those reports -->
+  <h2 class="section">Overview</h2>
+  <div class="hstats">
+    <div class="hstat total">
+      <small>Total reports</small><b id="sTotal">0</b>
+    </div>
+  </div>
+
+  <!-- The decision: which kind of report to open -->
+  <h2 class="section">Choose a report type</h2>
+  <nav class="atiles" aria-label="Report type">
+    <a class="atile incident" href="adminincident.html">
+      <span class="num" id="nIncident">0</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>
+      <b>Incident reports</b>
+      <small>Accidents, fires, theft and more</small>
+    </a>
+
+    <a class="atile complaint" href="admincomplaint.html">
+      <span class="num" id="nComplaint">0</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4z"/><path d="M8 9h8M8 12h5"/></svg>
+      <b>Complaint reports</b>
+      <small>Complaints sent in by users</small>
+    </a>
+  </nav>
+</main>
+
+<script>
+  function read(key) {
+    try {
+      var data = JSON.parse(localStorage.getItem(key) || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (e) { return []; }
+  }
+
+  function norm(s) {
+    s = String(s || "").toLowerCase();
+    if (s.indexOf("resolv") > -1) return "Resolved";
+    if (s.indexOf("review") > -1 || s.indexOf("approv") > -1) return "Under review";
+    return "Pending";
+  }
+
+  // Safe: if an element is missing, skip it instead of stopping the whole script
+  function setText(id, value) {
+    var node = document.getElementById(id);
+    if (node) node.textContent = value;
+  }
+
+  function updateCounts() {
+    var incidents = read("incidentReports");
+    var complaints = read("complaintReports");
+    var all = incidents.concat(complaints);
+
+    var c = { "Pending": 0, "Under review": 0, "Resolved": 0 };
+    all.forEach(function (r) { c[norm(r.status)]++; });
+
+    setText("sTotal", all.length);
+    setText("sPending", c["Pending"]);
+    setText("sResolved", c["Resolved"]);
+    setText("nIncident", incidents.length);
+    setText("nComplaint", complaints.length);
+  }
+
+  updateCounts();
+
+  // Refresh when coming back with the browser Back button, or when another tab changes the reports
+  window.addEventListener("pageshow", updateCounts);
+  window.addEventListener("storage", updateCounts);
+</script>
+</body>
+</html>

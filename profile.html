@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My profile</title>
+<link rel="stylesheet" href="../CSS/style.css">
+<style>
+  /* Hide the input boxes until Edit profile is clicked */
+  .profile .edit { display: none; }
+  .profile .editing .edit { display: block; }
+  .profile .editing .val,
+  .profile .editing .view-only { display: none; }
+</style>
+</head>
+<body class="wide profile" data-role="user">
+<main>
+  <header class="head">
+    <div class="who">
+      <div class="avatar" id="avatar" aria-hidden="true">JD</div>
+      <div>
+        <h1>My profile</h1>
+        <p class="sub" id="subtitle">Your account information</p>
+      </div>
+    </div>
+    <a class="back" href="home.html">&larr; Back to home</a>
+  </header>
+
+  <form id="f" novalidate onsubmit="return save()">
+    <div class="grid">
+
+      <div class="f">
+        <span class="lbl">Name</span>
+        <span class="val" data-view="name"></span>
+        <input type="text" id="name" class="edit" autocomplete="name" aria-label="Name">
+      </div>
+
+      <div class="f">
+        <span class="lbl">Birthday</span>
+        <span class="val" data-view="dob"></span>
+        <input type="date" id="dob" class="edit" autocomplete="bday" aria-label="Birthday">
+      </div>
+
+      <div class="f">
+        <span class="lbl">Age</span>
+        <span class="val" id="age"></span>
+        <span class="hint edit">Calculated from your birthday</span>
+      </div>
+
+      <div class="f">
+        <span class="lbl">Sex</span>
+        <span class="val" data-view="sex"></span>
+        <select id="sex" class="edit" aria-label="Sex">
+          <option>Female</option>
+          <option>Male</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="f">
+        <span class="lbl">Email</span>
+        <span class="val" data-view="email"></span>
+        <input type="email" id="email" class="edit" autocomplete="email" aria-label="Email">
+      </div>
+
+      <div class="f">
+        <span class="lbl">Password</span>
+        <span class="val" id="pwview">••••••••</span>
+        <input type="password" id="password" class="edit" autocomplete="new-password" aria-label="Password">
+      </div>
+
+      <p class="err" id="err" role="alert"></p>
+      <p class="ok" id="ok" role="status"></p>
+
+      <div class="actions">
+        <button class="go view-only" type="button" id="editBtn">Edit profile</button>
+        <button class="go edit" type="submit">Save changes</button>
+        <button class="ghost edit" type="button" id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+<script>
+  // Demo data. Replace with the real user's information from your server.
+  var defaults = {
+    name: "Juan Dela Cruz",
+    dob: "2000-05-14",
+    sex: "Male",
+    email: "juan@example.com",
+    password: "secret123"
+  };
+
+  var KEY = "profileData";
+  var data = load();
+  var form = document.getElementById("f");
+  var err = document.getElementById("err");
+  var ok = document.getElementById("ok");
+
+  function load() {
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(defaults));
+  }
+
+  function store() {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function calcAge(dob) {
+    if (!dob) return "";
+    var b = new Date(dob), t = new Date();
+    var age = t.getFullYear() - b.getFullYear();
+    var m = t.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && t.getDate() < b.getDate())) age--;
+    return age >= 0 ? age : "";
+  }
+
+  function prettyDate(dob) {
+    if (!dob) return "";
+    return new Date(dob + "T00:00:00").toLocaleDateString("en-US",
+      { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  function initials(name) {
+    var parts = name.trim().split(/\s+/);
+    var s = parts[0] ? parts[0][0] : "";
+    if (parts.length > 1) s += parts[parts.length - 1][0];
+    return s.toUpperCase();
+  }
+
+  function show() {
+    document.querySelectorAll("[data-view]").forEach(function (el) {
+      var k = el.getAttribute("data-view");
+      el.textContent = k === "dob" ? prettyDate(data.dob) : data[k];
+    });
+    document.getElementById("age").textContent = calcAge(data.dob);
+    document.getElementById("avatar").textContent = initials(data.name);
+  }
+
+  function fill() {
+    ["name", "dob", "sex", "email", "password"].forEach(function (k) {
+      document.getElementById(k).value = data[k];
+    });
+    document.getElementById("age").textContent = calcAge(data.dob);
+  }
+
+  function setEditing(on) {
+    form.classList.toggle("editing", on);
+    err.textContent = "";
+    if (on) {
+      ok.textContent = "";
+      fill();
+      document.getElementById("name").focus();
+    } else {
+      show();
+    }
+  }
+
+  // Live age while editing the birthday
+  document.getElementById("dob").addEventListener("input", function () {
+    document.getElementById("age").textContent = calcAge(this.value);
+  });
+
+  document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
+  document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
+
+  function save() {
+    var name = document.getElementById("name").value.trim();
+    var dob = document.getElementById("dob").value;
+    var sex = document.getElementById("sex").value;
+    var email = document.getElementById("email").value.trim();
+    var pass = document.getElementById("password").value;
+
+    if (name === "" || dob === "" || email === "" || pass === "") {
+      err.textContent = "Fill in every field.";
+      return false;
+    }
+    if (new Date(dob) > new Date()) {
+      err.textContent = "Birthday cannot be in the future.";
+      return false;
+    }
+    if (email.indexOf("@") < 1 || email.indexOf(".") < 0) {
+      err.textContent = "Enter a valid email address.";
+      return false;
+    }
+    if (pass.length < 6) {
+      err.textContent = "Use a password with at least 6 characters.";
+      return false;
+    }
+
+    data = { name: name, dob: dob, sex: sex, email: email, password: pass };
+    store();
+    setEditing(false);
+    ok.textContent = "Your profile was updated.";
+    return false;
+  }
+
+  show();
+</script>
+</body>
+</html>

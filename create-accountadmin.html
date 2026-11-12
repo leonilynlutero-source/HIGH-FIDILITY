@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Create admin account</title>
+<link rel="stylesheet" href="../CSS/style.css">
+
+</head>
+<body class="asu" data-role="admin">
+<main>
+  <header class="head">
+    <div>
+      <h1>Create admin account</h1>
+      <p class="sub">Enter your personal information. All fields are required.</p>
+    </div>
+    <a class="back" href="admin.html?role=admin">&larr; Back to sign in</a>
+  </header>
+
+  <form id="f" novalidate onsubmit="return create()">
+    <div class="agrid">
+
+      <h2 class="group">Personal information</h2>
+
+      <label class="f span-all">Name
+        <input type="text" id="name" autocomplete="name">
+      </label>
+
+      <label class="f">Birthday
+        <input type="date" id="dob" autocomplete="bday">
+      </label>
+
+      <label class="f">Sex
+        <select id="sex">
+          <option value="">Select</option>
+          <option>Female</option>
+          <option>Male</option>
+          <option>Prefer not to say</option>
+        </select>
+      </label>
+
+      <h2 class="group">Contact information</h2>
+
+      <label class="f">Email
+        <input type="email" id="email" autocomplete="email">
+      </label>
+
+      <label class="f">Phone number
+        <input type="tel" id="phone" autocomplete="tel" placeholder="09XX XXX XXXX">
+      </label>
+
+      <label class="f span-all">Address
+        <input type="text" id="address" autocomplete="street-address" placeholder="Street, barangay, city">
+      </label>
+
+      <h2 class="group">Account security</h2>
+
+      <label class="f">Password
+        <input type="password" id="password" autocomplete="new-password">
+      </label>
+
+      <label class="f">Confirm password
+        <input type="password" id="password2" autocomplete="new-password">
+      </label>
+
+      <label class="show span-all">
+        <input type="checkbox" id="showPw"> Show passwords
+      </label>
+
+      <p class="err span-all" id="err" role="alert"></p>
+
+      <div class="actions span-all">
+        <button class="go" type="submit">Create account</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Show or hide both password boxes
+  $("showPw").addEventListener("change", function () {
+    var type = this.checked ? "text" : "password";
+    $("password").type = type;
+    $("password2").type = type;
+  });
+
+  // Today's date is the latest birthday you can pick
+  var t = new Date();
+  $("dob").max = t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2);
+
+  function ageOf(dob) {
+    var b = new Date(dob), n = new Date();
+    var a = n.getFullYear() - b.getFullYear();
+    var m = n.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && n.getDate() < b.getDate())) a--;
+    return a;
+  }
+
+  function create() {
+    var err = $("err");
+    var name = $("name").value.trim();
+    var dob = $("dob").value;
+    var sex = $("sex").value;
+    var email = $("email").value.trim();
+    var phone = $("phone").value.trim();
+    var address = $("address").value.trim();
+    var pw = $("password").value;
+    var pw2 = $("password2").value;
+
+    if (!name || !dob || !sex || !email || !phone || !address || !pw || !pw2) {
+      err.textContent = "Fill in every field.";
+      return false;
+    }
+    if (ageOf(dob) < 18) {
+      err.textContent = "Admins must be 18 years old or older.";
+      return false;
+    }
+    if (email.indexOf("@") < 1 || email.indexOf(".") < 0) {
+      err.textContent = "Enter a valid email address.";
+      return false;
+    }
+    if (phone.replace(/\D/g, "").length < 10) {
+      err.textContent = "Enter a valid phone number.";
+      return false;
+    }
+    if (pw.length < 8) {
+      err.textContent = "Use a password with at least 8 characters.";
+      return false;
+    }
+    if (pw !== pw2) {
+      err.textContent = "The passwords do not match.";
+      return false;
+    }
+
+    // Demo only: nothing is saved. Send these values to your server to create a real account.
+    err.textContent = "";
+    alert("Admin account created. You can now sign in.");
+    location.href = "admin.html?role=admin";
+    return false;
+  }
+</script>
+</body>
+</html>

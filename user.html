@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body data-role="user">
+<main>
+  <section id="login">
+    <a class="back" href="login.html">&larr; Change role</a>
+    <h1 id="title">Sign in as User</h1>
+    <p class="sub" id="sub"></p>
+
+    <form id="f" novalidate onsubmit="return false">
+      <label class="f">Username
+        <input type="text" id="u" autocomplete="username">
+      </label>
+      <label class="f">Password
+        <input type="password" id="p" autocomplete="current-password">
+      </label>
+      <p class="err" id="err" role="alert"></p>
+      <a href="home.html"><button class="go" id="go" type="button">Sign in</button></a>
+    </form>
+    
+    </form>
+
+<p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
+  </section>
+
+  <section class="done" id="done" aria-live="polite">
+    <h1>Welcome, <span id="name"></span></h1>
+    <p>You’re signed in as <span class="tag" id="tag"></span></p>
+    <a class="out" href="index.html">Sign out</a>
+  </section>
+</main>
+
+<script>
