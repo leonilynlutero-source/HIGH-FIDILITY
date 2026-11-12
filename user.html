@@ -1,88 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sign In - Barangay Reporting System</title>
-
-    <!-- CSS CONNECTION -->
-   <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<link rel="stylesheet" href="style.css">
+<style>[hidden]{display:none !important}</style>
 </head>
-
 <body data-role="user">
-
 <main>
+  <section id="login">
+    <a class="back" href="login.html">&larr; Change role</a>
+    <h1 id="title">Sign in as User</h1>
+    <p class="sub" id="sub"></p>
 
-    <!-- LOGIN SECTION -->
-    <section id="login">
+    <form id="f" novalidate>
+      <label class="f">Username
+        <input type="text" id="u" autocomplete="username" required>
+      </label>
+      <label class="f">Password
+        <input type="password" id="p" autocomplete="current-password" required>
+      </label>
+      <p class="err" id="err" role="alert"></p>
+      <button class="go" id="go" type="submit">Sign in</button>
+    </form>
 
-        <a class="back" href="login.html">
-            &larr; Change role
-        </a>
+    <p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
+  </section>
 
-        <h1 id="title">Sign in as User</h1>
-
-        <p class="sub" id="sub"></p>
-
-        <form id="f" novalidate onsubmit="return false">
-
-            <label class="f">
-                Username
-                <input
-                    type="text"
-                    id="u"
-                    autocomplete="username"
-                    required
-                >
-            </label>
-
-            <label class="f">
-                Password
-                <input
-                    type="password"
-                    id="p"
-                    autocomplete="current-password"
-                    required
-                >
-            </label>
-
-            <p class="err" id="err" role="alert"></p>
-
-            <a class="go" id="go" href="home.html">
-                Sign in
-            </a>
-
-        </form>
-
-        <p class="signup">
-            Don't have an account?
-            <a href="signup.html">Create account</a>
-        </p>
-
-    </section>
-
-
-    <!-- SUCCESSFUL LOGIN SECTION -->
-    <section class="done" id="done" aria-live="polite">
-
-        <h1>
-            Welcome, <span id="name"></span>
-        </h1>
-
-        <p>
-            You're signed in as
-            <span class="tag" id="tag"></span>
-        </p>
-
-        <a class="out" href="login.html">
-            Sign out
-        </a>
-
-    </section>
-
+  <section class="done" id="done" aria-live="polite" hidden>
+    <h1>Welcome, <span id="name"></span></h1>
+    <p>You’re signed in as <span class="tag" id="tag"></span></p>
+    <a class="out" href="index.html">Sign out</a>
+  </section>
 </main>
 
+<script>
+  const role = document.body.dataset.role;
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
+  document.getElementById("title").textContent = "Sign in as " + roleLabel;
+  document.getElementById("tag").textContent = roleLabel;
+
+  const form = document.getElementById("f");
+  const err = document.getElementById("err");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    err.textContent = "";
+
+    const username = document.getElementById("u").value.trim();
+    const password = document.getElementById("p").value;
+
+    if (!username || !password) {
+      err.textContent = "Please enter your username and password.";
+      return;
+    }
+
+    // TODO: replace with a real server-side login check
+    sessionStorage.setItem("user", username);
+    sessionStorage.setItem("role", role);
+    window.location.href = "home.html";
+  });
+</script>
 </body>
 </html>
