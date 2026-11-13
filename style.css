@@ -1,3 +1,27 @@
+/* ==========================================================
+   INDEX: WHICH HTML PAGE EACH SECTION STYLES
+   Search for 'START OF STYLES FOR' to jump between sections.
+   - BASE STYLES ............ ALL pages
+   - HOME PAGE .............. home.html
+   - SIGN UP PAGE ........... signup.html (also used by profile.html)
+   - PROFILE PAGE ........... profile.html (extra rules at the end of file)
+   - REPORT PAGES ........... incident-report.html, complaint-report.html
+   - NOTIFICATIONS PAGE ..... notifications.html
+   - TRACK STATUS PAGE ...... track-status.html
+   - ADMIN COMPLAINT PAGE ... admincomplaint.html
+   - ADMIN INCIDENT PAGE .... adminincident.html
+   - No own rules yet (base only): login.html, user.html, admin.html,
+     home-admin.html, create-accountadmin.html, pending.html, resolved.html
+   ========================================================== */
+
+/* >>>>> START OF STYLES FOR: ALL pages: login.html, user.html, admin.html, home.html, home-admin.html, signup.html, profile.html, incident-report.html, complaint-report.html, notifications.html, track-status.html, admincomplaint.html, adminincident.html, create-accountadmin.html, pending.html, resolved.html (BASE STYLES) <<<<< */
+/* ==========================================================
+   BASE STYLES (lines below until the Home section)
+   USED BY: ALL pages (login.html, user.html, admin.html, home.html, signup.html,
+   profile.html, incident-report.html, complaint-report.html,
+   notifications.html, track-status.html)
+   Pages with NO body class (login, user, admin) use only this section.
+   ========================================================== */
 /* Basic blue and white theme */
 * { box-sizing: border-box; }
 
@@ -8,13 +32,14 @@ body {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: green;
+  background: #115e47;
   color: #1a2b44;
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
-  --accent: #01100a;
+  --accent: green;
 }
 
+/* NOTE: admin colour theme. Only applies if <body data-role="admin"> (admin.html currently says "user"). */
 body[data-role="admin"] { --accent: #0b3d91; }
 
 main {
@@ -26,16 +51,8 @@ main {
   box-shadow: 0 4px 16px rgba(30, 111, 217, 0.15);
 }
 
-h1 { 
-  margin: 0 0 6px; 
-  font-size: 1.6rem;
-  color: var(--accent); 
-}
-
-.sub { 
-  margin: 0 0 20px; 
-  color: #5a6b82; 
-}
+h1 { margin: 0 0 6px; font-size: 1.6rem; color:green }
+.sub { margin: 0 0 20px; color: #5a6b82; }
 
 .roles {
   display: grid;
@@ -57,35 +74,14 @@ button.role {
   border-radius: 8px;
   cursor: pointer;
 }
+button.role b { display: block; }
+button.role small { color: #5a6b82; }
+button.role:hover { border-color: var(--accent); background: #eaf2ff; }
+button.role:focus-visible { outline: 3px solid #9cc2f5; }
 
-button.role b { 
-  display: block; 
-}
+legend { padding: 0; margin-bottom: 8px; font-weight: bold; }
 
-button.role small { 
-  color: #5a6b82; 
-}
-
-button.role:hover { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
-button.role:focus-visible { 
-  outline: 3px solid #053a7e; 
-}
-
-legend { 
-  padding: 0; 
-  margin-bottom: 8px; 
-  font-weight: bold; 
-}
-
-.role input { 
-  position: absolute; 
-  opacity: 0; 
-}
-
+.role input { position: absolute; opacity: 0; }
 .role span {
   display: block;
   padding: 12px;
@@ -94,30 +90,12 @@ legend {
   background: #ffffff;
   cursor: pointer;
 }
+.role b { display: block; }
+.role small { color: #5a6b82; }
+.role input:checked + span { border-color: var(--accent); background: #eaf2ff; }
+.role input:focus-visible + span { outline: 3px solid #9cc2f5; }
 
-.role b { 
-  display: block; 
-}
-
-.role small { 
-  color: #5a6b82; 
-}
-
-.role input:checked + span { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
-.role input:focus-visible + span { 
-  outline: 3px solid #9cc2f5; 
-}
-
-label.f { 
-  display: block; 
-  margin-bottom: 14px; 
-  font-weight: bold; 
-}
-
+label.f { display: block; margin-bottom: 14px; font-weight: bold; }
 input[type="text"],
 input[type="password"] {
   display: block;
@@ -146,26 +124,11 @@ button.go {
   border-radius: 6px;
   cursor: pointer;
 }
-button.go:hover { 
-  background:green; 
-}
+button.go:hover { background: darkgreen; }
+body[data-role="admin"] button.go:hover { background: #082c69; }
 
-body[data-role="admin"] button.go:hover { 
-  background: #082c69; 
-}
-
-.err { 
-  min-height: 1.4em; 
-  margin: 0 0 8px; 
-  color: #c62828; 
-  font-size: 0.9rem; 
-}
-
-.note { 
-  margin: 16px 0 0; 
-  font-size: 0.85rem; 
-  color: #5a6b82; 
-}
+.err { min-height: 1.4em; margin: 0 0 8px; color: #c62828; font-size: 0.9rem; }
+.note { margin: 16px 0 0; font-size: 0.85rem; color: #5a6b82; }
 
 .done { display: none; }
 .done.show { display: block; }
@@ -183,23 +146,24 @@ body[data-role="admin"] button.go:hover {
   margin-top: 8px;
   padding: 10px 14px;
   font-size: 1rem;
-  color: black;
+  color: var(--accent);
   background: #ffffff;
   border: 1px solid var(--accent);
   border-radius: 6px;
   cursor: pointer;
 }
+/* >>>>> END OF STYLES FOR: ALL pages: login.html, user.html, admin.html, home.html, home-admin.html, signup.html, profile.html, incident-report.html, complaint-report.html, notifications.html, track-status.html, admincomplaint.html, adminincident.html, create-accountadmin.html, pending.html, resolved.html (BASE STYLES) <<<<< */
 
+
+/* >>>>> START OF STYLES FOR: home.html (HOME PAGE) <<<<< */
+/* ==========================================================
+   HOME PAGE
+   USED BY: home.html
+   <body class="home">
+   ========================================================== */
 /* ---------- Home page---------- */
-
-body.home { 
-  align-items: flex-start; 
-}
-
-body.home main { 
-  max-width: 720px; 
-  margin-top: 20px; 
-}
+body.home { align-items: flex-start; }
+body.home main { max-width: 720px; margin-top: 20px; }
 
 .top {
   display: flex;
@@ -208,16 +172,8 @@ body.home main {
   gap: 12px;
   margin-bottom: 20px;
 }
-
-.top .sub { 
-  margin: 0; 
-}
-
-.top .out { 
-  margin-top: 0; 
-  white-space: nowrap; 
-  text-decoration: none; 
-}
+.top .sub { margin: 0; }
+.top .out { margin-top: 0; white-space: nowrap; text-decoration: none; }
 
 .menu {
   display: grid;
@@ -234,14 +190,8 @@ body.home main {
   color: #1a2b44;
   text-decoration: none;
 }
-.tile:hover { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
-.tile:focus-visible { 
-  outline: 3px solid #9cc2f5; 
-}
+.tile:hover { border-color: var(--accent); background: #eaf2ff; }
+.tile:focus-visible { outline: 3px solid #9cc2f5; }
 
 .tile svg {
   width: 28px;
@@ -253,15 +203,10 @@ body.home main {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.tile b { 
-  display: block; 
-  margin-bottom: 2px; 
-}
+.tile b { display: block; margin-bottom: 2px; }
+.tile small { color: #5a6b82; }
 
-.tile small { 
-  color: #5a6b82; 
-}
-
+/* NOTE: .badge here = red notification count on home.html. Redefined again in the Track status section (line ~681). */
 .badge {
   display: inline-block;
   min-width: 20px;
@@ -274,7 +219,16 @@ body.home main {
   text-align: center;
 }
 .badge[hidden] { display: none; }
+/* >>>>> END OF STYLES FOR: home.html (HOME PAGE) <<<<< */
 
+
+/* >>>>> START OF STYLES FOR: signup.html (also reused by profile.html) (SIGN UP PAGE) <<<<< */
+/* ==========================================================
+   SIGN UP PAGE
+   USED BY: signup.html
+   <body class="wide">
+   Also reused by profile.html (it has class "wide" too).
+   ========================================================== */
 /* ---------- Sign up page (add to the end of style.css) ---------- */
 
 body.wide {
@@ -296,25 +250,15 @@ body.wide main {
   gap: 6px 12px;
   margin-bottom: 4px;
 }
-.head h1 { 
-  font-size: clamp(1.25rem, 3vw, 1.6rem); 
-  margin-bottom: 2px; 
-  color:#01100a
-}
-
-.head .sub { 
-  margin: 0; font-size: 0.9rem; 
-}
-
+.head h1 { font-size: clamp(1.25rem, 3vw, 1.6rem); margin-bottom: 2px; }
+.head .sub { margin: 0; font-size: 0.9rem; }
 .back {
   color: var(--accent);
   text-decoration: none;
   white-space: nowrap;
   font-size: 0.9rem;
 }
-.back:hover { 
-  text-decoration: underline; 
-}
+.back:hover { text-decoration: underline; }
 
 /* The form grid: as many columns as fit, each at least 170px wide */
 .grid {
@@ -322,19 +266,10 @@ body.wide main {
   grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
   gap: 0 12px;
 }
-
 .grid label.f,
-.grid .f {
-   margin-bottom: 10px; font-size: 0.85rem; 
-  }
-
-.span2 { 
-  grid-column: span 2; 
-}
-
-.span4 { 
-  grid-column: 1 / -1; 
-}
+.grid .f { margin-bottom: 10px; font-size: 0.85rem; }
+.span2 { grid-column: span 2; }
+.span4 { grid-column: 1 / -1; }
 
 /* Group headings take the full row */
 h2.group {
@@ -375,29 +310,11 @@ h2.group {
   justify-content: flex-end;
   margin: 4px 0 0;
 }
-.submit .go { 
-  width: 100%; 
-  max-width: 260px; 
-  padding: 12px; 
-}
+.submit .go { width: 100%; max-width: 260px; padding: 12px; }
 
-.grid .err { 
-  min-height: 1.2em; 
-  margin: 0; 
-}
-
-.signup { 
-  margin: 8px 0 0; 
-  text-align: center; 
-  font-size: 0.9rem; 
-  color: #5a6b82; 
-}
-
-.signup a { 
-  color: var(--accent); 
-  font-weight: bold; 
-  text-decoration: underline; 
-}
+.grid .err { min-height: 1.2em; margin: 0; }
+.signup { margin: 8px 0 0; text-align: center; font-size: 0.9rem; color: #5a6b82; }
+.signup a { color: var(--accent); font-weight: bold; text-decoration: underline; }
 
 /* Very narrow screens: nothing spans two columns, button fills the width */
 @media (max-width: 400px) {
@@ -409,11 +326,19 @@ h2.group {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+/* >>>>> END OF STYLES FOR: signup.html (also reused by profile.html) (SIGN UP PAGE) <<<<< */
 
+
+/* >>>>> START OF STYLES FOR: profile.html (PROFILE PAGE) <<<<< */
+/* ==========================================================
+   PROFILE PAGE
+   USED BY: profile.html
+   <body class="wide profile">
+   Also needs the .wide / .head / .back / .grid styles from the Sign up section above.
+   ========================================================== */
 /* ---------- Profile page (add to the end of style.css) ---------- */
 /* Needs the .wide, .head, .back and .grid styles from the sign up page too. */
 /* If you did not add those, add the block at the bottom of this file as well. */
-
 body.profile main { width: min(100%, 700px); }
 
 .who { display: flex; align-items: center; gap: 14px; }
@@ -432,11 +357,7 @@ body.profile main { width: min(100%, 700px); }
 }
 
 /* Each piece of information is a small card */
-.profile .grid { 
-  gap: 12px; 
-  margin-top: 16px; 
-}
-
+.profile .grid { gap: 12px; margin-top: 16px; }
 .profile .f {
   margin: 0;
   padding: 12px 14px;
@@ -445,26 +366,9 @@ body.profile main { width: min(100%, 700px); }
   background: #f7faff;
   font-weight: normal;
 }
-.lbl { 
-  display: block; 
-  font-size: 0.8rem; 
-  color: #5a6b82; 
-  margin-bottom: 4px; 
-}
-
-.val { 
-  display: block; 
-  font-size: 1.05rem; 
-  font-weight: bold; 
-  word-break: break-word; 
-}
-
-.hint { 
-  display: block; 
-  font-size: 0.8rem; 
-  color: #5a6b82; 
-  margin-top: 4px; 
-}
+.lbl { display: block; font-size: 0.8rem; color: #5a6b82; margin-bottom: 4px; }
+.val { display: block; font-size: 1.05rem; font-weight: bold; word-break: break-word; }
+.hint { display: block; font-size: 0.8rem; color: #5a6b82; margin-top: 4px; }
 
 /* View mode and edit mode */
 .profile .edit { display: none; }
@@ -495,35 +399,17 @@ body.profile main { width: min(100%, 700px); }
   border-radius: 6px;
   cursor: pointer;
 }
-.ghost:hover { 
-  background: #eaf2ff; 
-}
+.ghost:hover { background: #eaf2ff; }
 
-.profile .err { 
-  grid-column: 1 / -1; 
-  min-height: 0; 
-  margin: 0; 
-}
-
-.profile .err:empty { 
-  display: none; 
-}
-
-.ok { 
-  grid-column: 1 / -1; 
-  margin: 0; color: #2e7d32; 
-  font-size: 0.9rem; 
-}
-
-.ok:empty { 
-  display: none; 
-}
+.profile .err { grid-column: 1 / -1; min-height: 0; margin: 0; }
+.profile .err:empty { display: none; }
+.ok { grid-column: 1 / -1; margin: 0; color: #2e7d32; font-size: 0.9rem; }
+.ok:empty { display: none; }
 
 @media (max-width: 400px) {
   .profile .actions .go,
   .ghost { width: 100%; }
 }
-
 /* ---- Only add this block if you did not add signup-styles.css ---- */
 /*
 body.wide { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
@@ -533,20 +419,19 @@ body.wide main { padding: clamp(14px, 3vw, 28px); }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); }
 .grid input, .grid select { display: block; width: 100%; margin-top: 4px; padding: 9px 10px; font-family: inherit; font-size: 1rem; border: 1px solid #c9d8ec; border-radius: 6px; }
 */
+/* >>>>> END OF STYLES FOR: profile.html (PROFILE PAGE) <<<<< */
 
 
-/* Incident report page (add to the end of style.css) ---------- */
+/* >>>>> START OF STYLES FOR: incident-report.html and complaint-report.html (INCIDENT + COMPLAINT REPORT PAGES) <<<<< */
+/* ==========================================================
+   INCIDENT REPORT + COMPLAINT REPORT PAGES
+   USED BY: incident-report.html AND complaint-report.html
+   Both use <body class="report">, so they share these styles.
+   ========================================================== */
+/* ---------- Incident report page (add to the end of style.css) ---------- */
 /* Self-contained: does not depend on the sign up or profile styles. */
-body.report { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.report main { 
-  width: min(100%, 700px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
+body.report { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
+body.report main { width: min(100%, 700px); max-width: none; padding: clamp(14px, 3vw, 28px); }
 
 .report .head {
   display: flex;
@@ -556,25 +441,10 @@ body.report main {
   gap: 6px 12px;
   margin-bottom: 8px;
 }
-.report .head h1 { 
-  font-size: clamp(1.25rem, 3vw, 1.6rem); 
-  margin-bottom: 2px; 
-}
-
-.report .head .sub { 
-  margin: 0; font-size: 0.9rem; 
-}
-
-.report .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.report .back:hover { 
-  text-decoration: underline; 
-}
+.report .head h1 { font-size: clamp(1.25rem, 3vw, 1.6rem); margin-bottom: 2px; }
+.report .head .sub { margin: 0; font-size: 0.9rem; }
+.report .back { color: var(--accent); text-decoration: none; white-space: nowrap; font-size: 0.9rem; }
+.report .back:hover { text-decoration: underline; }
 
 /* Two columns on wide screens, one on phones */
 .rgrid {
@@ -583,14 +453,8 @@ body.report main {
   gap: 0 14px;
   margin-top: 10px;
 }
-
-.report .span-all { 
-  grid-column: 1 / -1; 
-}
-
-.report .f { 
-  margin-bottom: 14px; font-size: 0.9rem; 
-}
+.report .span-all { grid-column: 1 / -1; }
+.report .f { margin-bottom: 14px; font-size: 0.9rem; }
 
 .report input[type="text"],
 .report input[type="date"],
@@ -610,11 +474,7 @@ body.report main {
   border: 1px solid #c9d8ec;
   border-radius: 6px;
 }
-.report textarea { 
-  resize: vertical; 
-  min-height: 110px; 
-}
-
+.report textarea { resize: vertical; min-height: 110px; }
 .report input:focus,
 .report select:focus,
 .report textarea:focus {
@@ -622,31 +482,11 @@ body.report main {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px #cfe2fb;
 }
-
-.count { 
-  display: block; 
-  margin-top: 4px; 
-  text-align: right; 
-  font-size: 0.8rem; 
-  font-weight: normal; 
-  color: #5a6b82; 
-}
+.count { display: block; margin-top: 4px; text-align: right; font-size: 0.8rem; font-weight: normal; color: #5a6b82; }
 
 /* Photo picker */
-.report .lbl { 
-  display: block; 
-  font-weight: bold; 
-  margin-bottom: 6px; 
-}
-
-.file-input { 
-  position: absolute; 
-  width: 1px; 
-  height: 1px; 
-  opacity: 0; 
-  overflow: hidden; 
-}
-
+.report .lbl { display: block; font-weight: bold; margin-bottom: 6px; }
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 .pick {
   display: flex;
   align-items: center;
@@ -660,38 +500,16 @@ body.report main {
   font-weight: bold;
   cursor: pointer;
 }
-
-.pick[hidden] { 
-  display: none; 
-}
-
+.pick[hidden] { display: none; }
 .pick:hover,
-.file-input:focus-visible + .pick { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
+.file-input:focus-visible + .pick { border-color: var(--accent); background: #eaf2ff; }
 .pick svg {
-  width: 26px; 
-  height: 26px;
-  fill: none; 
-  stroke: var(--accent); 
-  stroke-width: 2;
-  stroke-linecap: round; 
-  stroke-linejoin: round;
+  width: 26px; height: 26px;
+  fill: none; stroke: var(--accent); stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
 }
-
-.preview[hidden] { 
-  display: none; 
-}
-
-.preview { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: flex-end; 
-  gap: 12px; 
-}
-
+.preview[hidden] { display: none; }
+.preview { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
 .preview img {
   max-width: 100%;
   max-height: 220px;
@@ -700,19 +518,8 @@ body.report main {
 }
 
 /* Buttons */
-.report .actions { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 10px; 
-  justify-content: flex-end; 
-}
-
-.report .actions .go { 
-  width: auto; 
-  min-width: 170px; 
-  padding: 12px 20px; 
-}
-
+.report .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.report .actions .go { width: auto; min-width: 170px; padding: 12px 20px; }
 .report .ghost {
   display: inline-block;
   padding: 11px 18px;
@@ -727,19 +534,9 @@ body.report main {
   border-radius: 6px;
   cursor: pointer;
 }
-
-.report .ghost:hover { 
-  background: #eaf2ff; 
-}
-
-.report .err { 
-  min-height: 0; 
-  margin: 0 0 8px; 
-}
-
-.report .err:empty { 
-  display: none; 
-}
+.report .ghost:hover { background: #eaf2ff; }
+.report .err { min-height: 0; margin: 0 0 8px; }
+.report .err:empty { display: none; }
 
 /* Confirmation */
 .refbox {
@@ -751,35 +548,25 @@ body.report main {
   background: #f7faff;
   color: #5a6b82;
 }
-
-.refbox b { 
-  display: block; 
-  margin-top: 4px; 
-  font-size: 1.5rem; 
-  letter-spacing: 1px; 
-  color: var(--accent); 
-}
-
-#doneView[hidden], #formView[hidden] { 
-  display: none; 
-}
+.refbox b { display: block; margin-top: 4px; font-size: 1.5rem; letter-spacing: 1px; color: var(--accent); }
+#doneView[hidden], #formView[hidden] { display: none; }
 
 @media (max-width: 400px) {
   .report .actions .go, .report .ghost { width: 100%; }
 }
+/* >>>>> END OF STYLES FOR: incident-report.html and complaint-report.html (INCIDENT + COMPLAINT REPORT PAGES) <<<<< */
 
-/* Notifications page */
 
-body.notif { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.notif main { 
-  width: min(100%, 700px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
+/* >>>>> START OF STYLES FOR: notifications.html (NOTIFICATIONS PAGE) <<<<< */
+/* ==========================================================
+   NOTIFICATIONS PAGE
+   USED BY: notifications.html
+   <body class="notif">
+   ========================================================== */
+/* ---------- Notifications page (add to the end of style.css) ---------- */
+/* Self-contained: does not depend on the other pages' styles. */
+body.notif { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
+body.notif main { width: min(100%, 700px); max-width: none; padding: clamp(14px, 3vw, 28px); }
 
 .notif .head {
   display: flex;
@@ -789,27 +576,10 @@ body.notif main {
   gap: 6px 12px;
   margin-bottom: 12px;
 }
-
-.notif .head h1 { 
-  font-size: clamp(1.25rem, 3vw, 1.6rem); 
-  margin-bottom: 2px; 
-}
-
-.notif .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.notif .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.notif .back:hover { 
-  text-decoration: underline; 
-}
+.notif .head h1 { font-size: clamp(1.25rem, 3vw, 1.6rem); margin-bottom: 2px; }
+.notif .head .sub { margin: 0; font-size: 0.9rem; }
+.notif .back { color: var(--accent); text-decoration: none; white-space: nowrap; font-size: 0.9rem; }
+.notif .back:hover { text-decoration: underline; }
 
 /* Buttons */
 .notif .ghost {
@@ -823,54 +593,18 @@ body.notif main {
   border-radius: 6px;
   cursor: pointer;
 }
-.notif .ghost:hover { 
-  background: #eaf2ff; 
-}
+.notif .ghost:hover { background: #eaf2ff; }
+.notif .ghost:disabled { opacity: 0.5; cursor: default; background: #ffffff; }
+.notif .ghost.danger { color: #c62828; border-color: #c62828; }
+.notif .ghost.danger:hover { background: #fdecea; }
+.notif .ghost.small { padding: 6px 12px; font-size: 0.85rem; }
+.notif .ghost:focus-visible { outline: 3px solid #9cc2f5; }
 
-.notif .ghost:disabled { 
-  opacity: 0.5; 
-  cursor: default; 
-  background: #ffffff; 
-}
-
-.notif .ghost.danger { 
-  color: #c62828; 
-  border-color: #c62828; 
-}
-
-.notif .ghost.danger:hover { 
-  background: #fdecea; 
-}
-
-.notif .ghost.small { 
-  padding: 6px 12px; 
-  font-size: 0.85rem; 
-}
-
-.notif .ghost:focus-visible { 
-  outline: 3px solid #9cc2f5; 
-}
-
-.toolbar { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 8px; 
-  justify-content: flex-end; 
-  margin-bottom: 12px; 
-}
-
-.toolbar[hidden], .empty[hidden] { 
-  display: none; 
-}
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-bottom: 12px; }
+.toolbar[hidden], .empty[hidden] { display: none; }
 
 /* List */
-.list { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
-  display: grid; 
-  gap: 10px; 
-}
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 
 .item {
   display: grid;
@@ -882,11 +616,7 @@ body.notif main {
   border-radius: 8px;
   background: #ffffff;
 }
-
-.item.unread { 
-  background: #eaf2ff; 
-  border-color: var(--accent); 
-}
+.item.unread { background: #eaf2ff; border-color: var(--accent); }
 
 .ico {
   width: 40px;
@@ -897,40 +627,17 @@ body.notif main {
   border-radius: 50%;
   background: #cfe2fb;
 }
-
 .ico svg {
-  width: 22px; 
-  height: 22px;
-  fill: none; 
-  stroke: var(--accent); 
-  stroke-width: 2;
-  stroke-linecap: round; 
-  stroke-linejoin: round;
+  width: 22px; height: 22px;
+  fill: none; stroke: var(--accent); stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
 }
+.ico.complaint { background: #fdf0d5; }
+.ico.complaint svg { stroke: #b26a00; }
 
-.ico.complaint { 
-  background: #fdf0d5; 
-}
-
-.ico.complaint svg { 
-  stroke: #b26a00; 
-}
-
-.body b { 
-  display: block; 
-}
-
-.body p { 
-  margin: 2px 0 4px; 
-  color: #1a2b44; 
-  font-size: 0.95rem; 
-  word-break: break-word; 
-}
-
-.body small { 
-  color: #5a6b82; 
-}
-
+.body b { display: block; }
+.body p { margin: 2px 0 4px; color: #1a2b44; font-size: 0.95rem; word-break: break-word; }
+.body small { color: #5a6b82; }
 .dot {
   display: inline-block;
   width: 9px; height: 9px;
@@ -940,64 +647,36 @@ body.notif main {
   vertical-align: middle;
 }
 
-.row-actions { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 6px; 
-  align-items: stretch; 
-}
+.row-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
 
 /* Empty state */
-.empty { 
-  padding: 36px 12px; 
-  text-align: center; 
-  color: #5a6b82; 
-}
-
+.empty { padding: 36px 12px; text-align: center; color: #5a6b82; }
 .empty svg {
-  width: 44px; 
-  height: 44px; 
-  margin-bottom: 8px;
-  fill: none; 
-  stroke: var(--accent); 
-  stroke-width: 1.8;
-  stroke-linecap: round; 
-  stroke-linejoin: round;
+  width: 44px; height: 44px; margin-bottom: 8px;
+  fill: none; stroke: var(--accent); stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
 }
-
-.empty p { 
-  margin: 2px 0; 
-}
-
-.empty b { 
-  color: #1a2b44; 
-}
+.empty p { margin: 2px 0; }
+.empty b { color: #1a2b44; }
 
 /* Phones: buttons move under the text */
 @media (max-width: 520px) {
-  .item { 
-    grid-template-columns: auto 1fr; 
-  }
-
-  .row-actions { 
-    grid-column: 1 / -1; 
-    flex-direction: row; 
-    justify-content: flex-end; 
-  }
+  .item { grid-template-columns: auto 1fr; }
+  .row-actions { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
 }
+/* >>>>> END OF STYLES FOR: notifications.html (NOTIFICATIONS PAGE) <<<<< */
 
-/* Track status page */
 
-body.track { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.track main { 
-  width: min(100%, 700px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
+/* >>>>> START OF STYLES FOR: track-status.html (TRACK STATUS PAGE) <<<<< */
+/* ==========================================================
+   TRACK STATUS PAGE
+   USED BY: track-status.html
+   <body class="track">
+   ========================================================== */
+/* ---------- Track status page (add to the end of style.css) ---------- */
+/* Self-contained: does not depend on the other pages' styles. */
+body.track { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
+body.track main { width: min(100%, 700px); max-width: none; padding: clamp(14px, 3vw, 28px); }
 
 .track .head {
   display: flex;
@@ -1007,42 +686,14 @@ body.track main {
   gap: 6px 12px;
   margin-bottom: 14px;
 }
-
-.track .head h1 { 
-  font-size: clamp(1.25rem, 3vw, 1.6rem); 
-  margin-bottom: 2px; 
-}
-
-.track .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.track .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.track .back:hover { 
-  text-decoration: underline;
- }
+.track .head h1 { font-size: clamp(1.25rem, 3vw, 1.6rem); margin-bottom: 2px; }
+.track .head .sub { margin: 0; font-size: 0.9rem; }
+.track .back { color: var(--accent); text-decoration: none; white-space: nowrap; font-size: 0.9rem; }
+.track .back:hover { text-decoration: underline; }
 
 /* Search box */
-.search { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: flex-end; 
-  gap: 10px; 
-}
-
-.search .f { 
-  flex: 1 1 220px; 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
+.search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.search .f { flex: 1 1 220px; margin: 0; font-size: 0.9rem; }
 .search input {
   display: block;
   width: 100%;
@@ -1057,54 +708,18 @@ body.track main {
   border: 1px solid #c9d8ec;
   border-radius: 6px;
 }
+.search input::placeholder { text-transform: none; color: #8a99ad; }
+.search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px #cfe2fb; }
+.search .go { width: auto; min-width: 120px; padding: 12px 22px; }
 
-.search input::placeholder { 
-  text-transform: none; 
-  color: #8a99ad; 
-}
-
-.search input:focus { 
-  outline: none; 
-  border-color: var(--accent); 
-  box-shadow: 0 0 0 3px #cfe2fb; 
-}
-
-.search .go { 
-  width: auto; 
-  min-width: 120px; 
-  padding: 12px 22px;
- }
-
-.track .err { 
-  margin: 10px 0 0; 
-  min-height: 0; 
-}
-
-.track .err:empty { 
-  display: none; 
-}
+.track .err { margin: 10px 0 0; min-height: 0; }
+.track .err:empty { display: none; }
 
 /* Recent reports */
-.recent { 
-  margin-top: 14px; 
-}
-
-.recent[hidden], .result[hidden] { 
-  display: none; 
-}
-
-.track .lbl { 
-  display: block; 
-  font-size: 0.8rem; 
-  color: #5a6b82; 
-  margin-bottom: 6px; 
-}
-
-.chips { 
-  display: flex; 
-  flex-wrap: wrap; gap: 8px;
- }
-
+.recent { margin-top: 14px; }
+.recent[hidden], .result[hidden] { display: none; }
+.track .lbl { display: block; font-size: 0.8rem; color: #5a6b82; margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   padding: 6px 12px;
   font-family: inherit;
@@ -1116,10 +731,7 @@ body.track main {
   border-radius: 99px;
   cursor: pointer;
 }
-
-.chip:hover { 
-  border-color: var(--accent); 
-}
+.chip:hover { border-color: var(--accent); }
 
 /* Result card */
 .result {
@@ -1129,33 +741,14 @@ body.track main {
   border-radius: 10px;
   background: #f7faff;
 }
-
-.result .top { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  justify-content: space-between; 
-  gap: 10px; 
-}
-
-.result small { 
-  color: #5a6b82; 
-}
-
-.result h2 { 
-  margin: 0; 
-  font-size: 1.3rem; 
-  letter-spacing: 1px; 
-  color: var(--accent); 
-  word-break: break-all;
-}
-
-.msg { 
-  margin: 12px 0 18px; 
-  color: #1a2b44; 
-}
+.result .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.result small { color: #5a6b82; }
+.result h2 { margin: 0; font-size: 1.3rem; letter-spacing: 1px; color: var(--accent); word-break: break-all; }
+.msg { margin: 12px 0 18px; color: #1a2b44; }
 
 /* Status badge */
+/* NOTE: .badge here = status badge on track-status.html (pending / approved / resolved).
+   This overrides the home .badge above, so the home count badge also gets this padding/font-size. */
 .badge {
   display: inline-block;
   padding: 6px 16px;
@@ -1164,18 +757,9 @@ body.track main {
   font-size: 0.95rem;
   color: #ffffff;
 }
-
-.badge.pending  { 
-  background: #e08a00; 
-}
-
-.badge.approved { 
-  background: var(--accent); 
-}
-
-.badge.resolved { 
-  background: #2e7d32; 
-}
+.badge.pending  { background: #e08a00; }
+.badge.approved { background: var(--accent); }
+.badge.resolved { background: #2e7d32; }
 
 /* Progress steps */
 .steps {
@@ -1186,7 +770,6 @@ body.track main {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
-
 .steps li {
   position: relative;
   padding: 10px 8px;
@@ -1196,7 +779,6 @@ body.track main {
   background: #ffffff;
   color: #5a6b82;
 }
-
 .steps .n {
   display: inline-flex;
   align-items: center;
@@ -1210,52 +792,17 @@ body.track main {
   font-size: 0.85rem;
   font-weight: bold;
 }
-
-.steps b { 
-  display: block; 
-  font-size: 0.95rem; 
-}
-
-.steps small { 
-  display: block; 
-  font-size: 0.75rem; 
-}
-
-.steps .done { 
-  border-color: #9cc2f5; 
-}
-
-.steps .done .n { 
-  background: var(--accent); 
-}
-
-.steps .now { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-  color: #1a2b44; 
-}
-
-.steps .now .n { 
-  background: var(--accent); 
-}
+.steps b { display: block; font-size: 0.95rem; }
+.steps small { display: block; font-size: 0.75rem; }
+.steps .done { border-color: #9cc2f5; }
+.steps .done .n { background: var(--accent); }
+.steps .now { border-color: var(--accent); background: #eaf2ff; color: #1a2b44; }
+.steps .now .n { background: var(--accent); }
 
 /* Details list */
-.details { 
-  margin: 0; 
-  display: grid; 
-  grid-template-columns: max-content 1fr; gap: 8px 16px; 
-}
-
-.details dt { 
-  color: #5a6b82; 
-  font-size: 0.9rem; 
-}
-
-.details dd { 
-  margin: 0; 
-  font-weight: bold; 
-  word-break: break-word; 
-}
+.details { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; }
+.details dt { color: #5a6b82; font-size: 0.9rem; }
+.details dd { margin: 0; font-weight: bold; word-break: break-word; }
 
 /* Demo box */
 .demo {
@@ -1275,7 +822,6 @@ body.track main {
   border-radius: 6px;
   background: #ffffff;
 }
-
 .track .ghost {
   padding: 9px 16px;
   font-family: inherit;
@@ -1287,288 +833,297 @@ body.track main {
   border-radius: 6px;
   cursor: pointer;
 }
-
-.track .ghost:hover { 
-  background: #eaf2ff; 
-}
+.track .ghost:hover { background: #eaf2ff; }
 
 @media (max-width: 480px) {
-  .search .go { 
-    width: 100%; 
-  }
-  .steps small { 
-    display: none; 
-  }
-  .details { 
-    grid-template-columns: 1fr; gap: 0; 
-  }
-  .details dd { 
-    margin-bottom: 8px; 
-  }
+  .search .go { width: 100%; }
+  .steps small { display: none; }
+  .details { grid-template-columns: 1fr; gap: 0; }
+  .details dd { margin-bottom: 8px; }
+}
+/* >>>>> END OF STYLES FOR: track-status.html (TRACK STATUS PAGE) <<<<< */
+
+/* >>>>> START OF STYLES FOR: adminincident.html and admincomplaint.html (ADMIN REPORT LIST LAYOUT) <<<<< */
+/* ==========================================================
+   ADMIN REPORT LIST LAYOUT
+   USED BY: adminincident.html AND admincomplaint.html
+   <body class="ain" data-role="admin">
+   Page box, header, filter tabs and report cards.
+   (The details / photo viewer / edit form styles are in the two sections above.)
+   ========================================================== */
+body.ain { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
+body.ain main {
+  max-width: 720px;
+  margin-top: 20px;
+  padding: clamp(16px, 3vw, 28px);
 }
 
-/* Admin create account page */
-
-body.asu { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.asu main { 
-  width: min(100%, 700px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
-
-.asu .head {
-  display: flex;
-  flex-wrap: wrap-reverse;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px 12px;
-  margin-bottom: 8px;
-}
-
-.asu .head h1 { 
-  font-size: clamp(1.25rem, 3vw, 1.6rem); 
-  margin-bottom: 2px; 
-}
-
-.asu .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.asu .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.asu .back:hover { 
-  text-decoration: underline; 
-}
-
-/* Two columns on wide screens, one on phones */
-.agrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 0 14px;
-}
-
-.asu .span-all { 
-  grid-column: 1 / -1; 
-}
-
-.asu .f { 
-  margin-bottom: 12px; 
-  font-size: 0.9rem; 
-}
-
-.asu h2.group {
-  grid-column: 1 / -1;
-  margin: 14px 0 8px;
-  padding-bottom: 4px;
-  font-size: 0.95rem;
-  color: var(--accent);
-  border-bottom: 1px solid #c9d8ec;
-}
-
-.asu input[type="text"],
-.asu input[type="email"],
-.asu input[type="tel"],
-.asu input[type="date"],
-.asu input[type="password"],
-.asu select {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  margin-top: 6px;
-  padding: 10px;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: normal;
-  color: #1a2b44;
-  background: #ffffff;
-  border: 1px solid #c9d8ec;
-  border-radius: 6px;
-}
-
-.asu input:focus,
-.asu select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px #cfe2fb;
-}
-
-.asu .show { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  margin-bottom: 8px; 
-  font-size: 0.9rem; 
-  cursor: pointer; 
-}
-
-.asu .show input { 
-  width: auto; 
-  margin: 0; 
-}
-
-.asu .err { 
-  min-height: 0; 
-  margin: 0 0 8px; 
-}
-
-.asu .err:empty { 
-  display: none; 
-}
-
-.asu .actions { 
-  display: flex; 
-  justify-content: flex-end; 
-}
-
-.asu .actions .go { 
-  width: 100%; 
-  max-width: 260px; 
-  padding: 12px; 
-}
-
-@media (max-width: 400px) {
-  .asu .actions .go { 
-    max-width: none; 
-  }
-}
-
-/*Admin home hub + reports page additions*/
-
-/* Admin home */
-body.ahub { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.ahub main { 
-  width: min(100%, 860px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
-
-.ahub .head {
+/* Header */
+.ain .head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px 12px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid var(--accent);
+}
+.ain .head h1 { margin: 0 0 4px; color: var(--accent); font-size: clamp(1.25rem, 3vw, 1.6rem); }
+.ain .head .sub { margin: 0; font-size: 0.9rem; }
+.ain .back { color: var(--accent); text-decoration: none; white-space: nowrap; font-size: 0.9rem; }
+.ain .back:hover { text-decoration: underline; }
+
+/* Total count next to the title */
+.ain .pill {
+  display: inline-block;
+  min-width: 28px;
+  padding: 1px 10px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Filter tabs: All / Pending / Resolved */
+.ain .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ain .tab {
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #1a2b44;
+  background: #ffffff;
+  border: 2px solid #c9d8ec;
+  border-radius: 99px;
+  cursor: pointer;
+}
+.ain .tab:hover { border-color: var(--accent); background: #eaf2ff; }
+.ain .tab:focus-visible { outline: 3px solid #9cc2f5; }
+.ain .tab.active { color: #ffffff; background: var(--accent); border-color: var(--accent); }
+
+/* Report cards */
+.ain .cards { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ain .card {
+  padding: 14px 16px;
+  border: 2px solid #c9d8ec;
+  border-left: 6px solid var(--accent);
+  border-radius: 8px;
+  background: #ffffff;
+}
+.ain .card .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.ain .card .ref { color: var(--accent); }
+.ain .card .what { margin: 0 0 2px; font-weight: bold; }
+.ain .card .where { margin: 0; color: #5a6b82; font-size: 0.85rem; }
+.ain .card .desc { margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; }
+.ain .card .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ain .card .ghost { width: auto; padding: 8px 14px; font-size: 0.9rem; }
+
+/* Status label on each card */
+.ain .st {
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.ain .st.pending { background: #fff3cd; color: #8a6100; }
+.ain .st.review { background: #e0ecff; color: #0b3d91; }
+.ain .st.resolved { background: #dff3e3; color: #1e6b2b; }
+
+.ain .empty { padding: 36px 12px; text-align: center; color: #5a6b82; }
+/* >>>>> END OF STYLES FOR: adminincident.html and admincomplaint.html (ADMIN REPORT LIST LAYOUT) <<<<< */
+
+
+/* >>>>> START OF STYLES FOR: adminincident.html and admincomplaint.html (ADMIN REPORT LIST LAYOUT) <<<<< */
+/* ==========================================================
+   ADMIN REPORT LIST LAYOUT
+   USED BY: adminincident.html AND admincomplaint.html
+   <body class="ain" data-role="admin">
+   Page box, header, filter tabs and report cards.
+   (The details / photo viewer / edit form styles are in the two sections above.)
+   ========================================================== */
+body.ain { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
+body.ain main {
+  max-width: 720px;
+  margin-top: 20px;
+  padding: clamp(16px, 3vw, 28px);
+}
+
+/* Header */
+.ain .head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid var(--accent);
+}
+.ain .head h1 { margin: 0 0 4px; color: var(--accent); font-size: clamp(1.25rem, 3vw, 1.6rem); }
+.ain .head .sub { margin: 0; font-size: 0.9rem; }
+.ain .back { color: var(--accent); text-decoration: none; white-space: nowrap; font-size: 0.9rem; }
+.ain .back:hover { text-decoration: underline; }
+
+/* Total count next to the title */
+.ain .pill {
+  display: inline-block;
+  min-width: 28px;
+  padding: 1px 10px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Filter tabs: All / Pending / Resolved */
+.ain .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ain .tab {
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #1a2b44;
+  background: #ffffff;
+  border: 2px solid #c9d8ec;
+  border-radius: 99px;
+  cursor: pointer;
+}
+.ain .tab:hover { border-color: var(--accent); background: #eaf2ff; }
+.ain .tab:focus-visible { outline: 3px solid #9cc2f5; }
+.ain .tab.active { color: #ffffff; background: var(--accent); border-color: var(--accent); }
+
+/* Report cards */
+.ain .cards { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ain .card {
+  padding: 14px 16px;
+  border: 2px solid #c9d8ec;
+  border-left: 6px solid var(--accent);
+  border-radius: 8px;
+  background: #ffffff;
+}
+.ain .card .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.ain .card .ref { color: var(--accent); }
+.ain .card .what { margin: 0 0 2px; font-weight: bold; }
+.ain .card .where { margin: 0; color: #5a6b82; font-size: 0.85rem; }
+.ain .card .desc { margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; }
+.ain .card .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ain .card .ghost { width: auto; padding: 8px 14px; font-size: 0.9rem; }
+
+/* Status label on each card */
+.ain .st {
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.ain .st.pending { background: #fff3cd; color: #8a6100; }
+.ain .st.review { background: #e0ecff; color: #0b3d91; }
+.ain .st.resolved { background: #dff3e3; color: #1e6b2b; }
+
+.ain .empty { padding: 36px 12px; text-align: center; color: #5a6b82; }
+/* >>>>> END OF STYLES FOR: adminincident.html and admincomplaint.html (ADMIN REPORT LIST LAYOUT) <<<<< */DENT PAGE/*<<<< */
+
+
+/* >>>>> START OF STYLES FOR: profile.html (PROFILE PAGE (extra rules)) <<<<< */
+/* Profile . html*/
+/* Hide the input boxes until Edit profile is clicked */
+  .profile .edit { display: none; }
+  .profile .editing .edit { display: block; }
+  .profile .editing .val,
+  .profile .editing .view-only { display: none; }
+/* >>>>> END OF STYLES FOR: profile.html (PROFILE PAGE (extra rules)) <<<<< */
+
+
+
+/* >>>>> START OF STYLES FOR: home-admin.html (ADMIN HOME / DASHBOARD) <<<<< */
+/* ==========================================================
+   ADMIN HOME PAGE
+   USED BY: home-admin.html
+   <body class="ahub" data-role="admin">
+   Uses the admin blue (--accent) from the base section.
+   ========================================================== */
+body.ahub { align-items: flex-start; padding: clamp(8px, 2vw, 20px); }
+body.ahub main {
+  max-width: 720px;
+  margin-top: 20px;
+  padding: clamp(16px, 3vw, 28px);
+}
+
+/* Header: title on the left, Log Out on the right */
+.ahub .head {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 8px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid var(--accent);
+}
+.ahub .head h1 { margin: 0 0 4px; color: green; font-size: clamp(1.3rem, 3vw, 1.7rem); }
+.ahub .head .sub { margin: 0; font-size: 0.95rem; }
+.ahub .head .out { margin-top: 0; white-space: nowrap; text-decoration: none; color:green }
+.ahub .head .out:hover { background: #eaf2ff; }
+.ahub .head .out:focus-visible { outline: 3px solid green; }
+
+/* Small section headings ("Overview", "Choose a report type") */
+.ahub .section {
+  margin: 24px 0 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5a6b82;
 }
 
-.ahub .head h1 { 
-  font-size: clamp(1.3rem, 3vw, 1.7rem); 
-  margin-bottom: 2px; 
-}
-
-.ahub .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.ahub .out { 
-  margin: 0; 
-  text-decoration: none; 
-  white-space: nowrap; 
-}
-
-.ahub h2.section {
-  margin: 24px 0 10px;
-  padding-bottom: 6px;
-  font-size: 1rem;
-  color: black;
-  border-bottom: 1px solid #c9d8ec;
-}
-
-/* Overview numbers */
-.hstats {
+/* Overview: summary number cards */
+.ahub .hstats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
 }
-
-.hstat {
-  display: block;
+.ahub .hstat {
   padding: 14px 16px;
-  color: #000812;
-  text-decoration: none;
-  background: #ffffff;
   border: 2px solid #c9d8ec;
-  border-left-width: 6px;
+  border-left: 6px solid var(--accent);
   border-radius: 8px;
+  background: #f5f9ff;
 }
+.ahub .hstat small { display: block; color: #5a6b82; font-size: 0.85rem; }
+.ahub .hstat b { display: block; font-size: 1.9rem; line-height: 1.2; color: var(--accent); }
+/* Optional colours if you add more cards later (pending / resolved) */
+.ahub .hstat.pending { border-left-color: #e6a100; }
+.ahub .hstat.pending b { color: #b27a00; }
+.ahub .hstat.resolved { border-left-color: #2e7d32; }
+.ahub .hstat.resolved b { color: #2e7d32; }
 
-.hstat small { 
-  display: block; 
-  color: #5a6b82; 
-  font-size: 0.85rem; 
-}
-
-.hstat b { 
-  display: block; 
-  font-size: 1.9rem; 
-  line-height: 1.2; 
-}
-
-.hstat.total    { 
-  border-left-color:black; 
-}
-
-.hstat.pending  { 
-  border-left-color: #e08a00; 
-}
-
-.hstat.review   { 
-  border-left-color: #6a4bc4; 
-}
-
-.hstat.resolved { 
-  border-left-color: #2e7d32; 
-}
-
-.hstat:hover { 
-  background: #eaf2ff; 
-}
-
-.hstat:focus-visible, .atile:focus-visible { 
-  outline: 3px solid #9cc2f5; 
-}
-
-/* Big action tiles */
-.atiles {
+/* Report type tiles (Incident / Complaint) */
+.ahub .atiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
 }
-
-.atile {
+.ahub .atile {
   position: relative;
   display: block;
-  padding: 20px;
+  padding: 20px 18px;
+  border: 2px solid #c9d8ec;
+  border-radius: 8px;
+  background: #ffffff;
   color: #1a2b44;
   text-decoration: none;
-  background: #ffffff;
-  border: 2px solid #c9d8ec;
-  border-radius: 10px;
 }
-
-.atile:hover { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
-.atile svg {
-  width: 32px;
-  height: 32px;
+.ahub .atile:hover { border-color: var(--accent); background: #eaf2ff; }
+.ahub .atile:focus-visible { outline: 3px solid #9cc2f5; }
+.ahub .atile svg {
+  width: 30px;
+  height: 30px;
   margin-bottom: 10px;
   fill: none;
   stroke: var(--accent);
@@ -1576,911 +1131,29 @@ body.ahub main {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+.ahub .atile.incident svg { stroke: #c62828; }
+.ahub .atile b { display: block; margin-bottom: 2px; font-size: 1.05rem; }
+.ahub .atile small { color: #5a6b82; }
 
-.atile b { 
-  display: block; 
-  margin-bottom: 2px; 
-  font-size: 1.05rem; 
-}
-
-.atile small { 
-  color: black; 
-}
-
-.atile .num {
+/* Count in the top-right corner of each tile */
+.ahub .atile .num {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  min-width: 34px;
-  padding: 2px 10px;
-  text-align: center;
-  font-weight: bold;
-  color: #ffffff;
+  top: 12px;
+  right: 12px;
+  min-width: 28px;
+  padding: 2px 9px;
+  border-radius: 99px;
   background: var(--accent);
-  border-radius: 99px;
-}
-
-.atile.complaint svg { 
-  stroke: #b26a00; 
-}
-
-.atile.complaint .num { 
-  background: #b26a00; 
-}
-
-/* Reports page additions */
-.adm .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.adm .back:hover { 
-  text-decoration: underline; 
-}
-
-.tabs { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 8px; 
-  margin-bottom: 16px; 
-}
-
-.tab {
-  padding: 8px 16px;
-  color: var(--accent);
-  font-weight: bold;
-  font-size: 0.9rem;
-  text-decoration: none;
-  background: #ffffff;
-  border: 1px solid #c9d8ec;
-  border-radius: 99px;
-  cursor: pointer;
-}
-
-.tab:hover { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
-.tab.active { 
-  color: #ffffff; 
-  background: var(--accent); 
-  border-color: var(--accent); 
-}
-
-/* Read-only status label (view mode) */
-.st-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  font-weight: bold;
   color: #ffffff;
-  border-radius: 99px;
-}
-
-.st-badge.pending  { 
-  background: #e08a00; 
-}
-
-.st-badge.review   { 
-  background: #6a4bc4; 
-}
-
-.st-badge.resolved { 
-  background: #2e7d32; 
-}
-
-
-/* Admin pending reports page */
-body.apd { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.apd main { 
-  width: min(100%, 860px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
-
-.apd .head {
-  display: flex;
-  flex-wrap: wrap-reverse;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px 12px;
-  margin-bottom: 14px;
-}
-
-.apd .head h1 { 
-  font-size: clamp(1.3rem, 3vw, 1.7rem); 
-  margin-bottom: 2px; 
-}
-
-.apd .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.apd .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.apd .back:hover { 
-  text-decoration: underline; 
-}
-
-.pill {
-  display: inline-block;
-  min-width: 30px;
-  padding: 1px 10px;
-  margin-left: 6px;
-  vertical-align: middle;
+  font-size: 0.85rem;
+  font-weight: bold;
   text-align: center;
-  font-size: 0.95rem;
-  color: #ffffff;
-  background: #e08a00;
-  border-radius: 99px;
 }
+.ahub .atile.incident .num { background: #c62828; }
 
-/* Search and filters */
-.bar { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 10px; 
-  margin-bottom: 10px; 
-}
-
-.search { 
-  position: relative; 
-  flex: 1 1 240px; 
-  margin: 0; 
-}
-
-.search svg {
-  position: absolute; 
-  left: 11px; 
-  top: 50%;
-  width: 18px; 
-  height: 18px; 
-  transform: translateY(-50%);
-  fill: none; 
-  stroke: #5a6b82; 
-  stroke-width: 2; 
-  stroke-linecap: round;
-}
-
-.apd .bar input {
-  display: block; 
-  width: 100%;
-  padding: 10px 10px 10px 36px;
-  font-family: inherit; 
-  font-size: 1rem; 
-  color: #1a2b44;
-  background: #ffffff; 
-  border: 1px solid #c9d8ec; 
-  border-radius: 6px;
-}
-
-.apd .bar select {
-  flex: 0 1 170px;
-  padding: 10px;
-  font-family: inherit; 
-  font-size: 1rem; 
-  color: #1a2b44;
-  background: #ffffff; 
-  border: 1px solid #c9d8ec; 
-  border-radius: 6px;
-}
-
-.apd .bar input:focus,
-.apd .bar select:focus { 
-  outline: none; 
-  border-color: var(--accent); 
-  box-shadow: 0 0 0 3px #cfe2fb; 
-}
-
-.apd .count { 
-  margin: 0 0 10px; 
-  min-height: 1.2em; 
-  font-size: 0.85rem; 
-  color: #5a6b82; 
-}
-
-/* "Moved to ..." message with Undo */
-.notice {
-  margin: 0 0 12px;
-  padding: 10px 14px;
-  color: #1b5e20;
-  background: #e8f5e9;
-  border: 1px solid #a5d6a7;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-
-.notice[hidden], .empty[hidden] { 
-  display: none;
- }
-
-.apd .link {
-  padding: 0;
-  font-family: inherit; 
-  font-size: inherit; 
-  font-weight: bold;
-  color: var(--accent); 
-  background: none; 
-  border: 0;
-  text-decoration: underline; 
-  cursor: pointer;
-}
-
-/* Report cards */
-.cards { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
-  display: grid; 
-  gap: 12px; 
-}
-
-.card {
-  padding: 14px 16px;
-  background: #ffffff;
-  border: 1px solid #c9d8ec;
-  border-left: 6px solid var(--accent);
-  border-radius: 8px;
-}
-
-.card.complaint { 
-  border-left-color: #b26a00; 
-}
-
-.card .top { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  justify-content: space-between; 
-  gap: 6px 12px;
- }
-
-.tag {
-  display: inline-block;
-  padding: 2px 10px;
-  margin-right: 8px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #ffffff;
-  background: var(--accent);
-  border-radius: 99px;
-}
-
-.tag.complaint { 
-  background: #b26a00; 
-}
-
-.ref { 
-  color: var(--accent); 
-  letter-spacing: 0.5px; 
-}
-
-.wait { 
-  font-size: 0.85rem; 
-  color: #5a6b82;
- }
-
-.wait.late { 
-  color: #c62828; 
-  font-weight: bold; 
-}
-
-.card p { 
-  margin: 6px 0 0; 
-}
-
-.what { 
-  font-weight: bold; 
-}
-
-.where { 
-  font-size: 0.9rem; 
-  color: #5a6b82; 
-}
-
-.desc {
-  font-size: 0.95rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.desc.full { 
-  display: block; 
-}
-
-.more { 
-  margin: 8px 0 0; 
-  display: grid; 
-  grid-template-columns: max-content 1fr; gap: 4px 14px; 
-}
-
-.more dt { 
-  color: #5a6b82; 
-  font-size: 0.85rem; 
-}
-
-.more dd { 
-  margin: 0; 
-  word-break: break-word; 
-}
-
-/* Card buttons */
-.acts { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 8px; 
-  justify-content: flex-end; 
-  margin-top: 12px; 
-}
-
-.apd .acts .go { 
-  width: auto; 
-  padding: 9px 16px; 
-  font-size: 0.9rem; 
-}
-
-.apd .ghost {
-  padding: 9px 14px;
-  font-family: inherit; 
-  font-size: 0.9rem; 
-  font-weight: bold;
-  color: var(--accent); 
-  background: #ffffff;
-  border: 1px solid var(--accent); 
-  border-radius: 6px; 
-  cursor: pointer;
-}
-
-.apd .ghost:hover { 
-  background: #eaf2ff; }
-.apd .ghost.ok { 
-  color: #2e7d32; 
-  border-color: #2e7d32; 
-}
-
-.apd .ghost.ok:hover { 
-  background: #e8f5e9; 
-}
-
-.apd button:focus-visible { 
-  outline: 3px solid #9cc2f5; 
-}
-
-.empty { 
-  padding: 30px 8px; 
-  text-align: center; 
-  color: #5a6b82; 
-}
-
+/* Phones: Log Out goes under the title, tiles stack */
 @media (max-width: 480px) {
-  .apd .acts .go, .apd .ghost { 
-    flex: 1 1 100%; 
-  }
+  .ahub .head { flex-wrap: wrap; }
+  .ahub .atiles { grid-template-columns: 1fr; }
 }
-
-/* Admin resolved reports page */
-
-
-body.ars { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.ars main { 
-  width: min(100%, 860px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
-
-.ars .head {
-  display: flex;
-  flex-wrap: wrap-reverse;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px 12px;
-  margin-bottom: 14px;
-}
-
-.ars .head h1 { 
-  font-size: clamp(1.3rem, 3vw, 1.7rem); 
-  margin-bottom: 2px; 
-}
-
-.ars .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.ars .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.ars .back:hover { 
-  text-decoration: underline; 
-}
-
-.ars .pill {
-  display: inline-block;
-  min-width: 30px;
-  padding: 1px 10px;
-  margin-left: 6px;
-  vertical-align: middle;
-  text-align: center;
-  font-size: 0.95rem;
-  color: #ffffff;
-  background: #2e7d32;
-  border-radius: 99px;
-}
-
-.toolbar { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  justify-content: space-between; 
-  gap: 8px; 
-  margin-bottom: 12px; 
-}
-
-.toolbar[hidden], .notice[hidden], .empty[hidden] { 
-  display: none; 
-}
-
-.ars .count { 
-  font-size: 0.85rem; 
-  color: #5a6b82; 
-}
-
-/* "Deleted" message with Undo */
-.notice {
-  margin: 0 0 12px;
-  padding: 10px 14px;
-  color: #1b5e20;
-  background: #e8f5e9;
-  border: 1px solid #a5d6a7;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-
-.ars .link {
-  padding: 0;
-  font-family: inherit; 
-  font-size: inherit; 
-  font-weight: bold;
-  color: var(--accent); 
-  background: none; 
-  border: 0;
-  text-decoration: underline; 
-  cursor: pointer;
-}
-
-/* Report cards */
-.ars .cards { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
-  display: grid; 
-  gap: 12px; 
-}
-
-.ars .card {
-  padding: 14px 16px;
-  background: #ffffff;
-  border: 1px solid #c9d8ec;
-  border-left: 6px solid #2e7d32;
-  border-radius: 8px;
-}
-
-.ars .card .top { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  justify-content: space-between; gap: 6px 12px; 
-}
-
-.ars .tag {
-  display: inline-block;
-  padding: 2px 10px;
-  margin-right: 8px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #ffffff;
-  background: var(--accent);
-  border-radius: 99px;
-}
-
-.ars .tag.complaint { 
-  background: #b26a00; 
-}
-
-.ars .ref { 
-  color: var(--accent); 
-  letter-spacing: 0.5px; 
-}
-
-.ars .done {
-  padding: 3px 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #ffffff;
-  background: #2e7d32;
-  border-radius: 99px;
-}
-
-.ars .card p { 
-  margin: 6px 0 0; 
-}
-
-.ars .what { 
-  font-weight: bold; 
-}
-
-.ars .where { 
-  font-size: 0.9rem; 
-  color: #5a6b82; 
-  margin-top: 2px; 
-}
-
-.ars .desc {
-  font-size: 0.95rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.ars .desc.full { 
-  display: block; 
-}
-
-.ars .more { 
-  margin: 8px 0 0; 
-  display: grid; 
-  grid-template-columns: max-content 1fr; 
-  gap: 4px 14px; 
-}
-
-.ars .more dt { 
-  color: #5a6b82; 
-  font-size: 0.85rem; 
-}
-
-.ars .more dd { 
-  margin: 0; 
-  word-break: break-word; 
-}
-
-/* Buttons */
-.ars .acts { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  gap: 8px; 
-  justify-content: flex-end; 
-  margin-top: 12px; 
-}
-
-.ars .ask { 
-  margin-right: auto; 
-  font-size: 0.9rem; 
-  font-weight: bold; 
-  color: #c62828; 
-}
-
-.ars .ghost {
-  padding: 9px 14px;
-  font-family: inherit; 
-  font-size: 0.9rem; 
-  font-weight: bold;
-  color: var(--accent); 
-  background: #ffffff;
-  border: 1px solid var(--accent); 
-  border-radius: 6px; 
-  cursor: pointer;
-}
-
-.ars .ghost:hover { 
-  background: #eaf2ff; 
-}
-
-.ars .ghost.danger { 
-  color: #c62828; 
-  border-color: #c62828; 
-}
-
-.ars .ghost.danger:hover { 
-  background: #fdecea; 
-}
-
-.ars .solid-danger {
-  padding: 9px 14px;
-  font-family: inherit;
-   font-size: 0.9rem; 
-   font-weight: bold;
-  color: #ffffff; 
-  background: #c62828;
-  border: 1px solid #c62828; 
-  border-radius: 6px; 
-  cursor: pointer;
-}
-
-.ars .solid-danger:hover { 
-  background: #a31f1f; 
-}
-
-.ars button:focus-visible { 
-  outline: 3px solid #9cc2f5; 
-}
-
-.ars .empty { 
-  padding: 30px 8px; 
-  text-align: center; 
-  color: #5a6b82; 
-}
-
-@media (max-width: 480px) {
-  .ars .acts .ghost, .ars .acts .solid-danger {
-     flex: 1 1 100%; 
-    }
-  .ars .ask { 
-    flex: 1 1 100%; 
-  }
-}
-
-/* Admin incident reports page */
-
-body.ain { 
-  align-items: flex-start; 
-  padding: clamp(8px, 2vw, 20px); 
-}
-
-body.ain main { 
-  width: min(100%, 860px); 
-  max-width: none; 
-  padding: clamp(14px, 3vw, 28px); 
-}
-
-.ain .head {
-  display: flex;
-  flex-wrap: wrap-reverse;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px 12px;
-  margin-bottom: 14px;
-}
-
-.ain .head h1 { 
-  font-size: clamp(1.3rem, 3vw, 1.7rem); 
-  margin-bottom: 2px; 
-}
-
-.ain .head .sub { 
-  margin: 0; 
-  font-size: 0.9rem; 
-}
-
-.ain .back { 
-  color: var(--accent); 
-  text-decoration: none; 
-  white-space: nowrap; 
-  font-size: 0.9rem; 
-}
-
-.ain .back:hover { 
-  text-decoration: underline; 
-}
-
-.ain .pill {
-  display: inline-block;
-  min-width: 30px;
-  padding: 1px 10px;
-  margin-left: 6px;
-  vertical-align: middle;
-  text-align: center;
-  font-size: 0.95rem;
-  color: #ffffff;
-  background: var(--accent);
-  border-radius: 99px;
-}
-
-/* Status filter tabs */
-.ain .tabs { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 8px; 
-  margin-bottom: 16px; 
-}
-
-.ain .tab {
-  padding: 8px 14px;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: var(--accent);
-  background: #ffffff;
-  border: 1px solid #c9d8ec;
-  border-radius: 99px;
-  cursor: pointer;
-}
-
-.ain .tab span {
-  display: inline-block;
-  min-width: 22px;
-  margin-left: 4px;
-  padding: 0 7px;
-  font-size: 0.8rem;
-  color: var(--accent);
-  background: #eaf2ff;
-  border-radius: 99px;
-}
-
-.ain .tab:hover { 
-  border-color: var(--accent); 
-  background: #eaf2ff; 
-}
-
-.ain .tab.active { 
-  color: #ffffff; 
-  background: var(--accent); 
-  border-color: var(--accent); 
-}
-
-.ain .tab.active span { 
-  color: var(--accent); 
-  background: #ffffff; 
-}
-
-.ain button:focus-visible { 
-  outline: 3px solid #9cc2f5; 
-}
-
-/* Report cards */
-.ain .cards { 
-  list-style: none; 
-  margin: 0; 
-  padding: 0; 
-  display: grid; 
-  gap: 12px; 
-}
-
-.ain .card {
-  padding: 14px 16px;
-  background: #ffffff;
-  border: 1px solid #c9d8ec;
-  border-left: 6px solid var(--accent);
-  border-radius: 8px;
-}
-
-.ain .card .top { 
-  display: flex; 
-  flex-wrap: wrap; 
-  align-items: center; 
-  justify-content: space-between; 
-  gap: 6px 12px; 
-}
-
-.ain .ref { 
-  color: var(--accent); 
-  letter-spacing: 0.5px; 
-}
-
-.ain .st {
-  padding: 3px 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #ffffff;
-  border-radius: 99px;
-}
-
-.ain .st.pending  { 
-  background: #e08a00; 
-}
-
-.ain .st.review   { 
-  background: #6a4bc4; 
-}
-
-.ain .st.resolved { 
-  background: #2e7d32; 
-}
-
-.ain .card p { 
-  margin: 6px 0 0; 
-}
-
-.ain .what { 
-  font-weight: bold; 
-}
-
-.ain .where { 
-  font-size: 0.9rem; 
-  color: #5a6b82; 
-  margin-top: 2px; 
-}
-
-.ain .desc {
-  font-size: 0.95rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.ain .desc.full { 
-  display: block; 
-}
-
-.ain .more { 
-  margin: 8px 0 0; 
-  display: grid; 
-  grid-template-columns: max-content 1fr; 
-  gap: 4px 14px; 
-}
-
-.ain .more dt { 
-  color: #5a6b82; 
-  font-size: 0.85rem; 
-}
-
-.ain .more dd { 
-  margin: 0; 
-  word-break: break-word; 
-}
-
-.ain .acts { 
-  display: flex; 
-  justify-content: flex-end; 
-  margin-top: 12px; 
-}
-
-.ain .ghost {
-  padding: 9px 14px;
-  font-family: inherit; 
-  font-size: 0.9rem; 
-  font-weight: bold;
-  color: var(--accent); 
-  background: #ffffff;
-  border: 1px solid var(--accent); 
-  border-radius: 6px; 
-  cursor: pointer;
-}
-
-.ain .ghost:hover { 
-  background: #eaf2ff; 
-}
-
-.ain .empty { 
-  padding: 30px 8px; 
-  text-align: center; 
-  color: #5a6b82; 
-}
-
-.ain .empty[hidden] { 
-  display: none; 
-}
-
-@media (max-width: 480px) {
-  .ain .acts .ghost { 
-    width: 100%; 
-  }
-}
+/* >>>>> END OF STYLES FOR: home-admin.html (ADMIN HOME / DASHBOARD) <<<<< */
