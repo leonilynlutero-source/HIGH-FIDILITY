@@ -3,51 +3,65 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin log in</title>
+<title>Sign in</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png" type="image/png">
+<link rel="icon" href="LOGO.png">
+<style>[hidden]{display:none !important}</style>
 </head>
 <body data-role="admin">
 <main>
   <section id="login">
     <a class="back" href="login.html">&larr; Change role</a>
-    <h1 id="title">Log in as Admin</h1>
-    <p class="sub" id="sub">School project demo. Use the demo admin account.</p>
+    <h1 id="title">Sign in as admin</h1>
+    <p class="sub" id="sub"></p>
 
     <form id="f" novalidate>
-      <label class="f">Email
-        <input type="email" id="u" autocomplete="email">
+      <label class="f">Username
+        <input type="text" id="u" autocomplete="username" required>
       </label>
       <label class="f">Password
-        <input type="password" id="p" autocomplete="current-password">
+        <input type="password" id="p" autocomplete="current-password" required>
       </label>
       <p class="err" id="err" role="alert"></p>
-      <button class="go" id="go" type="submit">Log in</button>
+      <button class="go" id="go" type="submit">Sign in</button>
     </form>
+
+    <p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
+  </section>
+
+  <section class="done" id="done" aria-live="polite" hidden>
+    <h1>Welcome, <span id="name"></span></h1>
+    <p>You’re signed in as <span class="tag" id="tag"></span></p>
+    <a class="out" href="index.html">Sign out</a>
   </section>
 </main>
 
-<script src="auth.js"></script>
 <script>
-  var role = document.body.dataset.role;
-  var err = document.getElementById("err");
+  const role = document.body.dataset.role;
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
-  document.getElementById("f").addEventListener("submit", function (e) {
+  document.getElementById("title").textContent = "Sign in as " + roleLabel;
+  document.getElementById("tag").textContent = roleLabel;
+
+  const form = document.getElementById("f");
+  const err = document.getElementById("err");
+
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
     err.textContent = "";
 
-    var email = document.getElementById("u").value.trim();
-    var pass = document.getElementById("p").value;
+    const username = document.getElementById("u").value.trim();
+    const password = document.getElementById("p").value;
 
-    if (!email || !pass) {
-      err.textContent = "Please enter your email and password.";
+    if (!username || !password) {
+      err.textContent = "Please enter your username and password.";
       return;
     }
 
-    var msg = Auth.login(email, pass, role);
-    if (msg) { err.textContent = msg; return; }
-
-    window.location.href = "home-admin.html";
+    // TODO: replace with a real server-side login check
+    sessionStorage.setItem("user", username);
+    sessionStorage.setItem("role", role);
+    window.location.href = "home.html";
   });
 </script>
 </body>
