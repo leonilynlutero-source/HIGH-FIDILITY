@@ -6,6 +6,13 @@
 <title>My profile</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png">
+<style>
+  /* Hide the input boxes until Edit profile is clicked */
+  .profile .edit { display: none; }
+  .profile .editing .edit { display: block; }
+  .profile .editing .val,
+  .profile .editing .view-only { display: none; }
+</style>
 </head>
 <body class="wide profile">
 <main>
@@ -124,6 +131,7 @@
   }
 
   // Loads the account that signed up or signed in.
+  // Nobody signed in (or an admin)? Go to the user sign in page.
   var data = Auth.require("user", "user.html");
   if (!data) { throw new Error("not signed in"); }
 
@@ -133,7 +141,7 @@
 
   var FIELDS = ["first", "last", "dob", "sex", "email", "phone", "street", "brgy", "city"];
 
-  // Older accounts may only have a full name; split it for first/last
+  // Older accounts may only have a full name; split it into first/last
   function getFirst(d) {
     if (d.first !== undefined) return d.first;
     var p = String(d.name || "").trim().split(/\s+/);
@@ -199,9 +207,11 @@
     }
   }
 
+  // Live age while editing the birthdate
   document.getElementById("dob").addEventListener("input", function () {
     document.getElementById("age").textContent = calcAge(this.value);
   });
+
   document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
   document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
   document.getElementById("signout").addEventListener("click", function () { Auth.logout(); });
