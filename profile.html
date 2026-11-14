@@ -6,14 +6,12 @@
 <title>My profile</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png">
-  
-</style>
 </head>
 <body class="wide profile" data-role="user">
 <main>
   <header class="head">
     <div class="who">
-      <div class="avatar" id="avatar" aria-hidden="true">JD</div>
+      <div class="avatar" id="avatar" aria-hidden="true"></div>
       <div>
         <h1>My profile</h1>
         <p class="sub" id="subtitle">Your account information</p>
@@ -22,7 +20,7 @@
     <a class="back" href="home.html">&larr; Back to home</a>
   </header>
 
-  <form id="f" novalidate onsubmit="return save()">
+  <form id="f" novalidate>
     <div class="grid">
 
       <div class="f">
@@ -77,33 +75,21 @@
   </form>
 </main>
 
+<script src="auth.js"></script>
 <script>
-  // Demo data. Replace with the real user's information from your server.
-  var defaults = {
-    name: "Juan Dela Cruz",
-    dob: "2000-05-14",
-    sex: "Male",
-    email: "juan@example.com",
-    password: "secret123"
-  };
+  if (typeof Auth === "undefined") {
+    document.querySelector("main").innerHTML =
+      "<p>auth.js is missing. Put auth.js in the same folder as this page.</p>";
+    throw new Error("auth.js missing");
+  }
 
-  var KEY = "profileData";
-  var data = load();
+  // Loads the account that signed in. If nobody did, go to the user sign in page.
+  var data = Auth.require("user", "user.html") ||
+             { name: "", dob: "", sex: "Male", email: "", password: "" };
+
   var form = document.getElementById("f");
   var err = document.getElementById("err");
   var ok = document.getElementById("ok");
-
-  function load() {
-    try {
-      var saved = localStorage.getItem(KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return JSON.parse(JSON.stringify(defaults));
-  }
-
-  function store() {
-    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
-  }
 
   function calcAge(dob) {
     if (!dob) return "";
@@ -155,13 +141,16 @@
     }
   }
 
-  // Live age while editing the birthday
   document.getElementById("dob").addEventListener("input", function () {
     document.getElementById("age").textContent = calcAge(this.value);
   });
-
   document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
   document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    save();
+  });
 
   function save() {
     var name = document.getElementById("name").value.trim();
@@ -171,27 +160,34 @@
     var pass = document.getElementById("password").value;
 
     if (name === "" || dob === "" || email === "" || pass === "") {
-      err.textContent = "Fill in every field.";
-      return false;
+      err.textContent = "Fill in every field."; return;
     }
     if (new Date(dob) > new Date()) {
-      err.textContent = "Birthday cannot be in the future.";
-      return false;
+      err.textContent = "Birthday cannot be in the future."; return;
     }
-    if (email.indexOf("@") < 1 || email.indexOf(".") < 0) {
-      err.textContent = "Enter a valid email address.";
-      return false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      err.textContent = "Enter a valid email address."; return;
     }
     if (pass.length < 6) {
-      err.textContent = "Use a password with at least 6 characters.";
-      return false;
+      err.textContent = "Use a password with at least 6 characters."; return;
     }
 
-    data = { name: name, dob: dob, sex: sex, email: email, password: pass };
-    store();
+    // Keep the other saved details (mobile, address, username...) when saving
+    var updated = Object.assign({}, data, {
+      name: name, dob: dob, sex: sex, email: email, password: pass
+    });
+    if (data.first !== undefined) {
+      var parts = name.split(/\s+/);
+      updated.last = parts.length > 1 ? parts.pop() : "";
+      updated.first = parts.join(" ");
+    }
+
+    var msg = Auth.update(updated);
+    if (msg) { err.textContent = msg; return; }
+
+    data = Auth.current();
     setEditing(false);
     ok.textContent = "Your profile was updated.";
-    return false;
   }
 
   show();
