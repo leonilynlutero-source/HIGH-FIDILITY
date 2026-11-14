@@ -3,38 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Baranagay Complaint and Incident Report System</title>
+<title>Sign in</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png">
+<link rel="icon" href="LOGO.png" type="image/png">
+<style>[hidden]{display:none !important}</style>
 </head>
-<body data-role="user">
+<body data-role="admin">
 <main>
   <section id="login">
     <a class="back" href="login.html">&larr; Change role</a>
-    <h1 id="title">Log in as Admin</h1>
-    <p class="sub" id="sub"></p>
+    <h1 id="title">Sign in as Admin</h1>
+    <p class="sub" id="sub">School project demo. Use the admin account you created.</p>
 
-    <form id="f" novalidate onsubmit="return false">
+    <form id="f" novalidate>
       <label class="f">Username
-        <input type="text" id="u" autocomplete="username">
+        <input type="text" id="u" autocomplete="username" required>
       </label>
       <label class="f">Password
-        <input type="password" id="p" autocomplete="current-password">
+        <input type="password" id="p" autocomplete="current-password" required>
       </label>
+      <p class="ok" id="ok" role="status"></p>
       <p class="err" id="err" role="alert"></p>
-      <a href="home-admin.html"><button class="go" id="go" type="button">Log in</button></a>
-    </form>
-    
+      <button class="go" id="go" type="submit">Sign in</button>
     </form>
 
-<p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
+    <p class="signup">Don't have an account? <a href="admin-signup.html">Create account</a></p>
   </section>
 
-  <section class="done" id="done" aria-live="polite">
+  <section class="done" id="done" aria-live="polite" hidden>
     <h1>Welcome, <span id="name"></span></h1>
     <p>You’re signed in as <span class="tag" id="tag"></span></p>
-    <a class="out" href="index.html">Sign out</a>
+    <p><a href="home-admin.html">Go to the admin home</a></p>
+    <a class="out" href="admin.html" id="signout">Sign out</a>
   </section>
 </main>
 
+<script src="auth.js"></script>
 <script>
+  const role = document.body.dataset.role;
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+
+  document.getElementById("title").textContent = "Sign in as " + roleLabel;
+  document.getElementById("tag").textContent = roleLabel;
+
+  const err = document.getElementById("err");
+  const ok = document.getElementById("ok");
+
+  if (typeof Auth === "undefined") {
+    err.textContent = "auth.js is missing. Put auth.js in the same folder as this page.";
+    document.getElementById("go").disabled = true;
+  } else {
+    // Already signed in as admin? Show the welcome section.
+    const me = Auth.current();
+    if (me && me.role === role) {
+      document.getElementById("login").hidden = true;
+      document.getElementById("done").hidden = false;
+      document.getElementById("name").textContent = me.name;
+    }
+  }
+
+  // Shown after creating an account
+  if (new URLSearchParams(window.location.search).get("created") === "1") {
+    ok.textContent = "Account created. You can sign in now.";
+  }
+
+  document.getElementById("signout").addEventListener("click", function () {
+    Auth.logout();
+  });
+
+  document.getElementById("f").addEventListener("submit", function (e) {
+    e.preventDefault();
+    err.textContent = "";
+    ok.textContent = "";
+
+    const uEl = document.getElementById("u");
+    const pEl = document.getElementById("p");
+    const username = uEl.value.trim();
+    const password = pEl.value;
+
+    if (!username) { err.textContent = "Enter your username."; uEl.focus(); return; }
+    if (!password) { err.textContent = "Enter your password."; pEl.focus(); return; }
+
+    const msg = Auth.login(username, password, role);
+    if (msg) { err.textContent = msg; return; }
+
+    window.location.href = "home-admin.html";
+  });
+</script>
+</body>
+</html>
