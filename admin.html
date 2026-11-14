@@ -38,3 +38,33 @@
 </main>
 
 <script>
+
+  const role = document.body.dataset.role;
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+
+  document.getElementById("title").textContent = "Sign in as " + roleLabel;
+  document.getElementById("tag").textContent = roleLabel;
+
+  const form = document.getElementById("f");
+  const err = document.getElementById("err");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    err.textContent = "";
+
+    const username = document.getElementById("u").value.trim();
+    const password = document.getElementById("p").value;
+
+    if (!username || !password) {
+      err.textContent = "Please enter your username and password.";
+      return;
+    }
+
+    // TODO: replace with a real server-side login check
+    sessionStorage.setItem("user", username);
+    sessionStorage.setItem("role", role);
+    window.location.href = "home.html";
+  });
+</script>
+</body>
+</html>
