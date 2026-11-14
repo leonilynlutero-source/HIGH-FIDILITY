@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create admin account</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="LOGO.png" type="image/png">
+</head>
+<body data-role="admin">
+<main>
+  <section>
+    <a class="back" href="admin.html">&larr; Back to log in</a>
+    <h1>Create admin account</h1>
+    <p class="sub">School project demo. Use a fake email and password. All fields are required.</p>
+
+    <form id="f">
+      <label class="f">Name
+        <input type="text" id="name" autocomplete="name" required>
+      </label>
+      <label class="f">Birthday
+        <input type="date" id="dob" autocomplete="bday" required>
+      </label>
+      <label class="f">Sex
+        <select id="sex" required>
+          <option value="">Select...</option>
+          <option>Female</option>
+          <option>Male</option>
+          <option>Prefer not to say</option>
+        </select>
+      </label>
+      <label class="f">Email
+        <input type="email" id="email" autocomplete="email" required>
+      </label>
+      <label class="f">Password
+        <input type="password" id="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <label class="f">Confirm password
+        <input type="password" id="confirm" autocomplete="new-password" minlength="6" required>
+      </label>
+      <p class="err" id="err" role="alert"></p>
+      <button class="go" id="go" type="submit">Create account</button>
+    </form>
+  </section>
+</main>
+
+<script src="auth.js"></script>
+<script>
+  var err = document.getElementById("err");
+
+  if (typeof Auth === "undefined") {
+    err.textContent = "auth.js is missing. Put auth.js in the same folder as this page.";
+    document.getElementById("go").disabled = true;
+  }
+
+  function fail(id, message) {
+    err.textContent = message;
+    document.getElementById(id).focus();
+  }
+
+  document.getElementById("f").addEventListener("submit", function (e) {
+    e.preventDefault();
+    err.textContent = "";
+
+    var name = document.getElementById("name").value.trim();
+    var dob = document.getElementById("dob").value;
+    var sex = document.getElementById("sex").value;
+    var email = document.getElementById("email").value.trim();
+    var pass = document.getElementById("password").value;
+    var confirm = document.getElementById("confirm").value;
+
+    if (!name)  return fail("name", "Enter your name.");
+    if (!dob)   return fail("dob", "Enter your birthday.");
+    if (new Date(dob) > new Date()) return fail("dob", "Birthday cannot be in the future.");
+    if (!sex)   return fail("sex", "Select your sex.");
+    if (!email) return fail("email", "Enter your email.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("email", "Enter a valid email address.");
+    if (!pass)  return fail("password", "Enter a password.");
+    if (pass.length < 6) return fail("password", "Use a password with at least 6 characters.");
+    if (!confirm) return fail("confirm", "Confirm your password.");
+    if (pass !== confirm) return fail("confirm", "Passwords do not match.");
+
+    var msg = Auth.signup({ name: name, dob: dob, sex: sex, email: email, password: pass, role: "admin" });
+    if (msg) { err.textContent = msg; return; }
+
+    // Only reached when everything is filled in and the account was saved
+    window.location.href = "admin.html?created=1";
+  });
+</script>
+</body>
+</html>
