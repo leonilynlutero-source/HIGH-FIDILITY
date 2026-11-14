@@ -82,8 +82,8 @@
 <script>
   var data = Auth.require() || { name: "", dob: "", sex: "Male", email: "", password: "", role: "user" };
 
-  if (data.role === "admin") {
-    document.getElementById("backHome").href = "home-admin.html";
+  if (data.role === "user") {
+    document.getElementById("backHome").href = "home.html";
   }
 
   var form = document.getElementById("f");
