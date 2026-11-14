@@ -13,20 +13,29 @@ var Auth = (function () {
     }
     return -1;
   }
+  // matches a username OR an email
+  function indexOfLogin(list, who) {
+    for (var i = 0; i < list.length; i++) {
+      if (norm(list[i].email) === norm(who)) return i;
+      if (list[i].username && norm(list[i].username) === norm(who)) return i;
+    }
+    return -1;
+  }
 
   return {
     signup: function (u) {
       if (!u.name || !u.dob || !u.sex || !u.email || !u.password) return "Fill in every field.";
       var list = readUsers();
       if (indexOfEmail(list, u.email) !== -1) return "That email is already registered.";
+      if (u.username && indexOfLogin(list, u.username) !== -1) return "That username is already taken.";
       list.push(u);
       writeUsers(list);
       return "";
     },
-    login: function (email, pass, role) {
-      if (!email || !pass) return "Enter your email and password.";
-      var list = readUsers(), i = indexOfEmail(list, email);
-      if (i === -1 || list[i].password !== pass) return "Wrong email or password.";
+    login: function (who, pass, role) {
+      if (!who || !pass) return "Enter your username and password.";
+      var list = readUsers(), i = indexOfLogin(list, who);
+      if (i === -1 || list[i].password !== pass) return "Wrong username or password.";
       if (role && list[i].role !== role) return "This is not a " + role + " account.";
       sessionStorage.setItem(SESSION, list[i].email);
       return "";
@@ -52,6 +61,7 @@ var Auth = (function () {
       var j = indexOfEmail(list, data.email);
       if (j !== -1 && j !== i) return "That email is used by another account.";
       data.role = list[i].role;
+      if (list[i].username && !data.username) data.username = list[i].username;
       list[i] = data;
       writeUsers(list);
       sessionStorage.setItem(SESSION, data.email);
