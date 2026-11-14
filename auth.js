@@ -69,10 +69,4 @@ var Auth = (function () {
     },
     logout: function () { sessionStorage.removeItem(SESSION); }
   };
-    // Loads the account that signed in. Nobody signed in (or an admin)? Go to the user sign in.
-  var data = Auth.require("user", "user.html");
-  if (!data) { throw new Error("not signed in"); }
-
-  document.getElementById("backHome").href = "home.html";
-  document.getElementById("signout").href = "user.html";
 })();
