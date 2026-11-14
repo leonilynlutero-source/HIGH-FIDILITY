@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Barangay Complaint and Incident Report System</title>
+<title>Admin log in</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png" type="image/png">
 </head>
@@ -12,9 +12,9 @@
   <section id="login">
     <a class="back" href="login.html">&larr; Change role</a>
     <h1 id="title">Log in as Admin</h1>
-    <p class="sub" id="sub">School project demo. Use a fake email and password.</p>
+    <p class="sub">School project demo. Use a fake email and password.</p>
 
-    <form id="f" novalidate>
+    <form id="f">
       <label class="f">Email
         <input type="email" id="u" autocomplete="email" required>
       </label>
@@ -32,11 +32,14 @@
 
 <script src="auth.js"></script>
 <script>
-  var role = document.body.dataset.role;
   var err = document.getElementById("err");
   var ok = document.getElementById("ok");
 
-  // Message shown after creating an account
+  if (typeof Auth === "undefined") {
+    err.textContent = "auth.js is missing. Put auth.js in the same folder as this page.";
+    document.getElementById("go").disabled = true;
+  }
+
   if (new URLSearchParams(window.location.search).get("created") === "1") {
     ok.textContent = "Account created. You can log in now.";
   }
@@ -54,7 +57,7 @@
     if (!email) { err.textContent = "Enter your email."; uEl.focus(); return; }
     if (!password) { err.textContent = "Enter your password."; pEl.focus(); return; }
 
-    var msg = Auth.login(email, password, role);
+    var msg = Auth.login(email, password, "admin");
     if (msg) { err.textContent = msg; return; }
 
     window.location.href = "home-admin.html";
