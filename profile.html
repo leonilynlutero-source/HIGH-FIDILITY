@@ -19,7 +19,7 @@
     </div>
     <div>
       <a class="back" id="backHome" href="home.html">&larr; Back to home</a>
-      <a class="out" id="signout" href="login.html">Sign out</a>
+      <a class="out" id="signout" href="user.html">Sign out</a>
     </div>
   </header>
 
@@ -87,16 +87,13 @@
     throw new Error("auth.js missing");
   }
 
-  // Any signed-in account (user or admin) can open this page.
-  // If nobody is signed in, go to the role page and stop here.
+  // Loads the account that signed in. Nobody signed in? Go back to the role page.
   var data = Auth.require(null, "login.html");
   if (!data) { throw new Error("not signed in"); }
 
   var isAdmin = data.role === "admin";
   document.getElementById("backHome").href = isAdmin ? "home-admin.html" : "home.html";
   document.getElementById("signout").href = isAdmin ? "admin.html" : "user.html";
-  document.getElementById("subtitle").textContent =
-    isAdmin ? "Your admin account information" : "Your account information";
 
   var form = document.getElementById("f");
   var err = document.getElementById("err");
@@ -153,9 +150,11 @@
     }
   }
 
+  // Live age while editing the birthday
   document.getElementById("dob").addEventListener("input", function () {
     document.getElementById("age").textContent = calcAge(this.value);
   });
+
   document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
   document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
   document.getElementById("signout").addEventListener("click", function () { Auth.logout(); });
@@ -196,6 +195,7 @@
       updated.first = parts.join(" ");
     }
 
+    // Saves to the same account that signed in
     var msg = Auth.update(updated);
     if (msg) { err.textContent = msg; return; }
 
