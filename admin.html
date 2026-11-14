@@ -3,27 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Barangay Complaint and Incident Report System</title>
+<title>Admin log in</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png">
+<link rel="icon" href="LOGO.png" type="image/png">
+<style>[hidden]{display:none !important}</style>
 </head>
 <body data-role="admin">
 <main>
   <section id="login">
-    <a class="back" href="login.html">&larr; Change role</a>
+    <a class="back" href="index.html">&larr; Back</a>
     <h1 id="title">Log in as Admin</h1>
-    <p class="sub" id="sub">School project demo. Use the demo admin account.</p>
+    <p class="sub" id="sub">School project demo. Use a fake email and password.</p>
 
     <form id="f" novalidate>
       <label class="f">Email
-        <input type="email" id="u" autocomplete="email">
+        <input type="email" id="u" autocomplete="email" required>
       </label>
       <label class="f">Password
-        <input type="password" id="p" autocomplete="current-password">
+        <input type="password" id="p" autocomplete="current-password" required>
       </label>
       <p class="err" id="err" role="alert"></p>
       <button class="go" id="go" type="submit">Log in</button>
     </form>
+
+    <p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
   </section>
 </main>
 
@@ -37,14 +40,14 @@
     err.textContent = "";
 
     var email = document.getElementById("u").value.trim();
-    var pass = document.getElementById("p").value;
+    var password = document.getElementById("p").value;
 
-    if (!email || !pass) {
+    if (!email || !password) {
       err.textContent = "Please enter your email and password.";
       return;
     }
 
-    var msg = Auth.login(email, pass, role);
+    var msg = Auth.login(email, password);
     if (msg) { err.textContent = msg; return; }
 
     window.location.href = "home-admin.html";
