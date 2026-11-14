@@ -6,37 +6,6 @@
 <title>Sign in</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png" type="image/png">
-<style>
-  [hidden] { display: none !important; }
-  #done:not([hidden]) { display: block !important; }
-
-  /* Welcome card layout */
-  #done .welcome-head { margin-bottom: 6px; }
-  #done .welcome-head h1 { margin: 0 0 12px; line-height: 1.25; }
-  #done .signed-as {
-    display: flex; align-items: center; gap: 8px;
-    margin: 0 0 22px; color: #5b6770;
-  }
-  #done .actions {
-    display: flex; gap: 12px; flex-wrap: wrap;
-  }
-  #done .actions a {
-    flex: 1 1 140px;
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-weight: 600;
-    box-sizing: border-box;
-  }
-  #done .actions .primary {
-    background: #0f6b4a; color: #fff; border: 2px solid #0f6b4a;
-  }
-  #done .actions .secondary {
-    background: #fff; color: #0b3d91; border: 2px solid #0b3d91;
-  }
-</style>
 </head>
 <body data-role="admin">
 <main>
@@ -58,18 +27,6 @@
 
     <p class="signup">Don't have an account? <a href="admin-signup.html">Create account</a></p>
   </section>
-
-  <section class="done" id="done" aria-live="polite" hidden>
-    <div class="welcome-head">
-      <h1>Welcome, <span id="name"></span></h1>
-    </div>
-    <p class="signed-as">You’re signed in as <span class="tag" id="tag"></span></p>
-
-    <div class="actions">
-      <a class="primary" href="home-admin.html">Go to admin home</a>
-      <a class="secondary" href="admin.html" id="signout">Sign out</a>
-    </div>
-  </section>
 </main>
 
 <script src="auth.js"></script>
@@ -78,7 +35,6 @@
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
   document.getElementById("title").textContent = "Sign in as " + roleLabel;
-  document.getElementById("tag").textContent = roleLabel;
 
   const err = document.getElementById("err");
   const ok = document.getElementById("ok");
@@ -86,24 +42,12 @@
   if (typeof Auth === "undefined") {
     err.textContent = "auth.js is missing. Put auth.js in the same folder as this page.";
     document.getElementById("go").disabled = true;
-  } else {
-    // Already signed in as admin? Show the welcome card.
-    const me = Auth.current();
-    if (me && me.role === role) {
-      document.getElementById("login").hidden = true;
-      document.getElementById("done").hidden = false;
-      document.getElementById("name").textContent = me.name;
-    }
   }
 
   // Shown after creating an account
   if (new URLSearchParams(window.location.search).get("created") === "1") {
     ok.textContent = "Account created. You can sign in now.";
   }
-
-  document.getElementById("signout").addEventListener("click", function () {
-    Auth.logout();
-  });
 
   document.getElementById("f").addEventListener("submit", function (e) {
     e.preventDefault();
