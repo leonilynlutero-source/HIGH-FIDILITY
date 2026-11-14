@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My profile</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png">
+<link rel="icon" href="LOGO.png" type="image/png">
 </head>
-<body class="wide profile" data-role="user">
+<body class="wide profile">
 <main>
   <header class="head">
     <div class="who">
@@ -17,7 +17,10 @@
         <p class="sub" id="subtitle">Your account information</p>
       </div>
     </div>
-    <a class="back" href="home.html">&larr; Back to home</a>
+    <div>
+      <a class="back" id="backHome" href="home.html">&larr; Back to home</a>
+      <a class="out" id="signout" href="login.html">Sign out</a>
+    </div>
   </header>
 
   <form id="f" novalidate>
@@ -60,7 +63,8 @@
       <div class="f">
         <span class="lbl">Password</span>
         <span class="val" id="pwview">••••••••</span>
-        <input type="password" id="password" class="edit" autocomplete="new-password" aria-label="Password">
+        <input type="password" id="password" class="edit" autocomplete="new-password"
+               placeholder="Leave blank to keep current" aria-label="Password">
       </div>
 
       <p class="err" id="err" role="alert"></p>
@@ -83,9 +87,16 @@
     throw new Error("auth.js missing");
   }
 
-  // Loads the account that signed in. If nobody did, go to the user sign in page.
-  var data = Auth.require("user", "user.html") ||
-             { name: "", dob: "", sex: "Male", email: "", password: "" };
+  // Any signed-in account (user or admin) can open this page.
+  // If nobody is signed in, go to the role page and stop here.
+  var data = Auth.require(null, "login.html");
+  if (!data) { throw new Error("not signed in"); }
+
+  var isAdmin = data.role === "admin";
+  document.getElementById("backHome").href = isAdmin ? "home-admin.html" : "home.html";
+  document.getElementById("signout").href = isAdmin ? "admin.html" : "user.html";
+  document.getElementById("subtitle").textContent =
+    isAdmin ? "Your admin account information" : "Your account information";
 
   var form = document.getElementById("f");
   var err = document.getElementById("err");
@@ -107,7 +118,7 @@
   }
 
   function initials(name) {
-    var parts = name.trim().split(/\s+/);
+    var parts = String(name || "").trim().split(/\s+/);
     var s = parts[0] ? parts[0][0] : "";
     if (parts.length > 1) s += parts[parts.length - 1][0];
     return s.toUpperCase();
@@ -116,16 +127,17 @@
   function show() {
     document.querySelectorAll("[data-view]").forEach(function (el) {
       var k = el.getAttribute("data-view");
-      el.textContent = k === "dob" ? prettyDate(data.dob) : data[k];
+      el.textContent = k === "dob" ? prettyDate(data.dob) : (data[k] || "");
     });
     document.getElementById("age").textContent = calcAge(data.dob);
     document.getElementById("avatar").textContent = initials(data.name);
   }
 
   function fill() {
-    ["name", "dob", "sex", "email", "password"].forEach(function (k) {
-      document.getElementById(k).value = data[k];
+    ["name", "dob", "sex", "email"].forEach(function (k) {
+      document.getElementById(k).value = data[k] || "";
     });
+    document.getElementById("password").value = "";
     document.getElementById("age").textContent = calcAge(data.dob);
   }
 
@@ -146,6 +158,7 @@
   });
   document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
   document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
+  document.getElementById("signout").addEventListener("click", function () { Auth.logout(); });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -159,8 +172,8 @@
     var email = document.getElementById("email").value.trim();
     var pass = document.getElementById("password").value;
 
-    if (name === "" || dob === "" || email === "" || pass === "") {
-      err.textContent = "Fill in every field."; return;
+    if (name === "" || dob === "" || email === "") {
+      err.textContent = "Fill in your name, birthday and email."; return;
     }
     if (new Date(dob) > new Date()) {
       err.textContent = "Birthday cannot be in the future."; return;
@@ -168,13 +181,14 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       err.textContent = "Enter a valid email address."; return;
     }
-    if (pass.length < 6) {
+    if (pass !== "" && pass.length < 6) {
       err.textContent = "Use a password with at least 6 characters."; return;
     }
 
-    // Keep the other saved details (mobile, address, username...) when saving
+    // Keep the other saved details (mobile, address, username, role...)
     var updated = Object.assign({}, data, {
-      name: name, dob: dob, sex: sex, email: email, password: pass
+      name: name, dob: dob, sex: sex, email: email,
+      password: pass === "" ? data.password : pass
     });
     if (data.first !== undefined) {
       var parts = name.split(/\s+/);
