@@ -3,65 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign in</title>
+<title>Create admin account</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png">
-<style>[hidden]{display:none !important}</style>
+<link rel="icon" href="LOGO.png" type="image/png">
 </head>
 <body data-role="admin">
 <main>
-  <section id="login">
-    <a class="back" href="login.html">&larr; Change role</a>
-    <h1 id="title">Sign in as Admin</h1>
-    <p class="sub" id="sub"></p>
+  <section>
+    <a class="back" id="backLink" href="admin.html">&larr; Back to log in</a>
+    <h1>Create admin account</h1>
+    <p class="sub">School project demo. Use a fake email and password.</p>
 
     <form id="f" novalidate>
-      <label class="f">Username
-        <input type="text" id="u" autocomplete="username" required>
+      <label class="f">Name
+        <input type="text" id="name" autocomplete="name">
+      </label>
+      <label class="f">Birthday
+        <input type="date" id="dob" autocomplete="bday">
+      </label>
+      <label class="f">Sex
+        <select id="sex">
+          <option>Female</option>
+          <option>Male</option>
+          <option>Prefer not to say</option>
+        </select>
+      </label>
+      <label class="f">Email
+        <input type="email" id="email" autocomplete="email">
       </label>
       <label class="f">Password
-        <input type="password" id="p" autocomplete="current-password" required>
+        <input type="password" id="password" autocomplete="new-password">
+      </label>
+      <label class="f">Confirm password
+        <input type="password" id="confirm" autocomplete="new-password">
       </label>
       <p class="err" id="err" role="alert"></p>
-      <button class="go" id="go" type="submit">Sign in</button>
+      <button class="go" type="submit">Create account</button>
     </form>
-
-    <p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
-  </section>
-
-  <section class="done" id="done" aria-live="polite" hidden>
-    <h1>Welcome, <span id="name"></span></h1>
-    <p>You’re signed in as <span class="tag" id="tag"></span></p>
-    <a class="out" href="index.html">Sign out</a>
   </section>
 </main>
 
+<script src="auth.js"></script>
 <script>
-  const role = document.body.dataset.role;
-  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+  // File name of your admin log in page
+  var ADMIN_LOGIN = "admin.html";
 
-  document.getElementById("title").textContent = "Sign in as " + roleLabel;
-  document.getElementById("tag").textContent = roleLabel;
+  document.getElementById("backLink").href = ADMIN_LOGIN;
+  var err = document.getElementById("err");
 
-  const form = document.getElementById("f");
-  const err = document.getElementById("err");
-
-  form.addEventListener("submit", function (e) {
+  document.getElementById("f").addEventListener("submit", function (e) {
     e.preventDefault();
     err.textContent = "";
 
-    const username = document.getElementById("u").value.trim();
-    const password = document.getElementById("p").value;
+    var name = document.getElementById("name").value.trim();
+    var dob = document.getElementById("dob").value;
+    var sex = document.getElementById("sex").value;
+    var email = document.getElementById("email").value.trim();
+    var pass = document.getElementById("password").value;
+    var confirm = document.getElementById("confirm").value;
 
-    if (!username || !password) {
-      err.textContent = "Please enter your username and password.";
-      return;
-    }
+    if (!name || !dob || !email || !pass) { err.textContent = "Fill in every field."; return; }
+    if (new Date(dob) > new Date()) { err.textContent = "Birthday cannot be in the future."; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Enter a valid email address."; return; }
+    if (pass.length < 6) { err.textContent = "Use a password with at least 6 characters."; return; }
+    if (pass !== confirm) { err.textContent = "Passwords do not match."; return; }
 
-    // TODO: replace with a real server-side login check
-    sessionStorage.setItem("user", username);
-    sessionStorage.setItem("role", role);
-    window.location.href = "home-admin.html";
+    var msg = Auth.signup({ name: name, dob: dob, sex: sex, email: email, password: pass });
+    if (msg) { err.textContent = msg; return; }
+
+    alert("Account created! You can log in now.");
+    window.location.href = ADMIN_LOGIN;
   });
 </script>
 </body>
