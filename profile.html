@@ -7,60 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png" type="image/png">
 </head>
-<body class="wide profile">    err.textContent = "";
-    if (on) {
-      ok.textContent = "";
-      fill();
-      document.getElementById("name").focus();
-    } else {
-      show();
-    }
-  }
-
-  // Live age while editing the birthday
-  document.getElementById("dob").addEventListener("input", function () {
-    document.getElementById("age").textContent = calcAge(this.value);
-  });
-
-  document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
-  document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
-
-  function save() {
-    var name = document.getElementById("name").value.trim();
-    var dob = document.getElementById("dob").value;
-    var sex = document.getElementById("sex").value;
-    var email = document.getElementById("email").value.trim();
-    var pass = document.getElementById("password").value;
-
-    if (name === "" || dob === "" || email === "" || pass === "") {
-      err.textContent = "Fill in every field.";
-      return false;
-    }
-    if (new Date(dob) > new Date()) {
-      err.textContent = "Birthday cannot be in the future.";
-      return false;
-    }
-    if (email.indexOf("@") < 1 || email.indexOf(".") < 0) {
-      err.textContent = "Enter a valid email address.";
-      return false;
-    }
-    if (pass.length < 6) {
-      err.textContent = "Use a password with at least 6 characters.";
-      return false;
-    }
-
-    data = { name: name, dob: dob, sex: sex, email: email, password: pass };
-    store();
-    setEditing(false);
-    ok.textContent = "Your profile was updated.";
-    return false;
-  }
-
-  show();
-</script>
-</body>
-</html>
-      
+<body class="wide profile">
 <main>
   <header class="head">
     <div class="who">
@@ -72,7 +19,7 @@
     </div>
     <div>
       <a class="back" id="backHome" href="home.html">&larr; Back to home</a>
-      <a class="out" href="user.html" id="signout">Sign out</a>
+      <a class="out" id="signout" href="user.html">Sign out</a>
     </div>
   </header>
 
@@ -116,7 +63,8 @@
       <div class="f">
         <span class="lbl">Password</span>
         <span class="val" id="pwview">••••••••</span>
-        <input type="password" id="password" class="edit" autocomplete="new-password" aria-label="Password">
+        <input type="password" id="password" class="edit" autocomplete="new-password"
+               placeholder="Leave blank to keep current" aria-label="Password">
       </div>
 
       <p class="err" id="err" role="alert"></p>
@@ -133,7 +81,14 @@
 
 <script src="auth.js"></script>
 <script>
-  // Only a signed-in user can open this page; anyone else goes to the user sign in
+  if (typeof Auth === "undefined") {
+    document.querySelector("main").innerHTML =
+      "<p>auth.js is missing. Put auth.js in the same folder as this page.</p>";
+    throw new Error("auth.js missing");
+  }
+
+  // Loads the account that just signed up or signed in.
+  // Nobody signed in (or an admin)? Go to the user sign in page.
   var data = Auth.require("user", "user.html");
   if (!data) { throw new Error("not signed in"); }
 
@@ -173,9 +128,10 @@
   }
 
   function fill() {
-    ["name", "dob", "sex", "email", "password"].forEach(function (k) {
+    ["name", "dob", "sex", "email"].forEach(function (k) {
       document.getElementById(k).value = data[k] || "";
     });
+    document.getElementById("password").value = "";
     document.getElementById("age").textContent = calcAge(data.dob);
   }
 
@@ -191,9 +147,11 @@
     }
   }
 
+  // Live age while editing the birthday
   document.getElementById("dob").addEventListener("input", function () {
     document.getElementById("age").textContent = calcAge(this.value);
   });
+
   document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
   document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
   document.getElementById("signout").addEventListener("click", function () { Auth.logout(); });
@@ -210,8 +168,8 @@
     var email = document.getElementById("email").value.trim();
     var pass = document.getElementById("password").value;
 
-    if (name === "" || dob === "" || email === "" || pass === "") {
-      err.textContent = "Fill in every field."; return;
+    if (name === "" || dob === "" || email === "") {
+      err.textContent = "Fill in your name, birthday and email."; return;
     }
     if (new Date(dob) > new Date()) {
       err.textContent = "Birthday cannot be in the future."; return;
@@ -219,15 +177,22 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       err.textContent = "Enter a valid email address."; return;
     }
-    if (pass.length < 6) {
+    if (pass !== "" && pass.length < 6) {
       err.textContent = "Use a password with at least 6 characters."; return;
     }
 
     // Keep the other saved details (mobile, address, username, role...)
     var updated = Object.assign({}, data, {
-      name: name, dob: dob, sex: sex, email: email, password: pass
+      name: name, dob: dob, sex: sex, email: email,
+      password: pass === "" ? data.password : pass
     });
+    if (data.first !== undefined) {
+      var parts = name.split(/\s+/);
+      updated.last = parts.length > 1 ? parts.pop() : "";
+      updated.first = parts.join(" ");
+    }
 
+    // Saves to the same account that signed in
     var msg = Auth.update(updated);
     if (msg) { err.textContent = msg; return; }
 
