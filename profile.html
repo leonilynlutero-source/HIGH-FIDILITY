@@ -80,10 +80,12 @@
 
 <script src="auth.js"></script>
 <script>
-  var data = Auth.require() || { name: "", dob: "", sex: "Male", email: "", password: "", role: "user" };
+  // Only a signed-in user can open this page; anyone else goes to the user sign in
+var data = Auth.require("user", "user.html");
+if (!data) { throw new Error("not signed in"); }
 
-  if (data.role === "user") {
-    document.getElementById("backHome").href = "home.html";
+document.getElementById("backHome").href = "home.html";
+document.getElementById("signout").href = "user.html";
   }
 
   var form = document.getElementById("f");
