@@ -1165,7 +1165,7 @@ body.ahub main {
   #done .welcome-head { margin-bottom: 4px; }
   #done .welcome-head h1 {
     margin: 0 0 8px;
-    font-size: 20px;      /* smaller Welcome text */
+    font-size: 15px;      /* smaller Welcome text */
     line-height: 1.3;
   }
   #done .signed-as {
