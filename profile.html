@@ -87,10 +87,6 @@
     throw new Error("auth.js missing");
   }
 
-  // Loads the account that signed in. Nobody signed in? Go back to the role page.
-  var data = Auth.require(null, "login.html");
-  if (!data) { throw new Error("not signed in"); }
-
   var isAdmin = data.role === "user";
   document.getElementById("backHome").href = "home.html";
   var form = document.getElementById("f");
