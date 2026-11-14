@@ -3,67 +3,61 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Baranagay Complaint and Incident Report System</title>
+<title>Barangay Complaint and Incident Report System</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png">
+<link rel="icon" href="LOGO.png" type="image/png">
 </head>
-<body data-role="user">
+<body data-role="admin">
 <main>
   <section id="login">
     <a class="back" href="login.html">&larr; Change role</a>
     <h1 id="title">Log in as Admin</h1>
-    <p class="sub" id="sub"></p>
+    <p class="sub" id="sub">School project demo. Use a fake email and password.</p>
 
-    <form id="f" novalidate onsubmit="return false">
-      <label class="f">Username
-        <input type="text" id="u" autocomplete="username">
+    <form id="f" novalidate>
+      <label class="f">Email
+        <input type="email" id="u" autocomplete="email" required>
       </label>
       <label class="f">Password
-        <input type="password" id="p" autocomplete="current-password">
+        <input type="password" id="p" autocomplete="current-password" required>
       </label>
+      <p class="ok" id="ok" role="status"></p>
       <p class="err" id="err" role="alert"></p>
-      <a href="home-admin.html"><button class="go" id="go" type="button">Log in</button></a>
-    </form>
-    
+      <button class="go" id="go" type="submit">Log in</button>
     </form>
 
-<p class="signup">Don't have an account? <a href="signup.html">Create account</a></p>
-  </section>
-
-  <section class="done" id="done" aria-live="polite">
-    <h1>Welcome, <span id="name"></span></h1>
-    <p>You’re signed in as <span class="tag" id="tag"></span></p>
-    <a class="out" href="index.html">Sign out</a>
+    <p class="signup">Don't have an account? <a href="admin-signup.html">Create account</a></p>
   </section>
 </main>
 
+<script src="auth.js"></script>
 <script>
+  var role = document.body.dataset.role;
+  var err = document.getElementById("err");
+  var ok = document.getElementById("ok");
 
-  const role = document.body.dataset.role;
-  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+  // Message shown after creating an account
+  if (new URLSearchParams(window.location.search).get("created") === "1") {
+    ok.textContent = "Account created. You can log in now.";
+  }
 
-  document.getElementById("title").textContent = "Sign in as " + roleLabel;
-  document.getElementById("tag").textContent = roleLabel;
-
-  const form = document.getElementById("f");
-  const err = document.getElementById("err");
-
-  form.addEventListener("submit", function (e) {
+  document.getElementById("f").addEventListener("submit", function (e) {
     e.preventDefault();
     err.textContent = "";
+    ok.textContent = "";
 
-    const username = document.getElementById("u").value.trim();
-    const password = document.getElementById("p").value;
+    var uEl = document.getElementById("u");
+    var pEl = document.getElementById("p");
+    var email = uEl.value.trim();
+    var password = pEl.value;
 
-    if (!username || !password) {
-      err.textContent = "Please enter your username and password.";
-      return;
-    }
+    if (!email) { err.textContent = "Enter your email."; uEl.focus(); return; }
+    if (!password) { err.textContent = "Enter your password."; pEl.focus(); return; }
 
-    // TODO: replace with a real server-side login check
-    sessionStorage.setItem("user", username);
-    sessionStorage.setItem("role", role);
-    window.location.href = "home.html";
+    var msg = Auth.login(email, password, role);
+    if (msg) { err.textContent = msg; return; }
+
+    window.location.href = "home-admin.html";
   });
 </script>
 </body>
