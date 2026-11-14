@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My profile</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png" type="image/png">
 <style>
   /* Hide the input boxes until Edit profile is clicked */
   .profile .edit { display: none; }
@@ -14,47 +13,38 @@
   .profile .editing .view-only { display: none; }
 </style>
 </head>
-<body class="wide profile">
+<body class="wide profile" data-role="user">
 <main>
   <header class="head">
     <div class="who">
-      <div class="avatar" id="avatar" aria-hidden="true"></div>
+      <div class="avatar" id="avatar" aria-hidden="true">JD</div>
       <div>
         <h1>My profile</h1>
         <p class="sub" id="subtitle">Your account information</p>
       </div>
     </div>
-    <div>
-      <a class="back" href="home.html">&larr; Back to home</a>
-      <a class="out" id="signout" href="user.html">Sign out</a>
-    </div>
+    <a class="back" href="home.html">&larr; Back to home</a>
   </header>
 
-  <form id="f" novalidate>
+  <form id="f" novalidate onsubmit="return save()">
     <div class="grid">
 
       <div class="f">
-        <span class="lbl">First name</span>
-        <span class="val" data-view="first"></span>
-        <input type="text" id="first" class="edit" autocomplete="given-name" aria-label="First name">
+        <span class="lbl">Name</span>
+        <span class="val" data-view="name"></span>
+        <input type="text" id="name" class="edit" autocomplete="name" aria-label="Name">
       </div>
 
       <div class="f">
-        <span class="lbl">Last name</span>
-        <span class="val" data-view="last"></span>
-        <input type="text" id="last" class="edit" autocomplete="family-name" aria-label="Last name">
-      </div>
-
-      <div class="f">
-        <span class="lbl">Birthdate</span>
+        <span class="lbl">Birthday</span>
         <span class="val" data-view="dob"></span>
-        <input type="date" id="dob" class="edit" autocomplete="bday" aria-label="Birthdate">
+        <input type="date" id="dob" class="edit" autocomplete="bday" aria-label="Birthday">
       </div>
 
       <div class="f">
         <span class="lbl">Age</span>
         <span class="val" id="age"></span>
-        <span class="hint edit">Calculated from your birthdate</span>
+        <span class="hint edit">Calculated from your birthday</span>
       </div>
 
       <div class="f">
@@ -74,40 +64,9 @@
       </div>
 
       <div class="f">
-        <span class="lbl">Mobile number</span>
-        <span class="val" data-view="phone"></span>
-        <input type="tel" id="phone" class="edit" autocomplete="tel" placeholder="09XX XXX XXXX" aria-label="Mobile number">
-      </div>
-
-      <div class="f">
-        <span class="lbl">Street address</span>
-        <span class="val" data-view="street"></span>
-        <input type="text" id="street" class="edit" autocomplete="street-address" aria-label="Street address">
-      </div>
-
-      <div class="f">
-        <span class="lbl">Barangay</span>
-        <span class="val" data-view="brgy"></span>
-        <input type="text" id="brgy" class="edit" aria-label="Barangay">
-      </div>
-
-      <div class="f">
-        <span class="lbl">City</span>
-        <span class="val" data-view="city"></span>
-        <input type="text" id="city" class="edit" autocomplete="address-level2" aria-label="City">
-      </div>
-
-      <div class="f">
-        <span class="lbl">Username</span>
-        <span class="val" data-view="username"></span>
-        <span class="hint edit">Your username can't be changed</span>
-      </div>
-
-      <div class="f">
         <span class="lbl">Password</span>
-        <span class="val">••••••••</span>
-        <input type="password" id="password" class="edit" autocomplete="new-password"
-               placeholder="Leave blank to keep current" aria-label="Password">
+        <span class="val" id="pwview">••••••••</span>
+        <input type="password" id="password" class="edit" autocomplete="new-password" aria-label="Password">
       </div>
 
       <p class="err" id="err" role="alert"></p>
@@ -122,40 +81,32 @@
   </form>
 </main>
 
-<script src="auth.js"></script>
 <script>
-  if (typeof Auth === "undefined") {
-    document.querySelector("main").innerHTML =
-      "<p>auth.js is missing. Put auth.js in the same folder as this page.</p>";
-    throw new Error("auth.js missing");
-  }
+  // Demo data. Replace with the real user's information from your server.
+  var defaults = {
+    name: "Juan Dela Cruz",
+    dob: "2000-05-14",
+    sex: "Male",
+    email: "juan@example.com",
+    password: "secret123"
+  };
 
-  // Loads the account that signed up or signed in.
-  // Nobody signed in (or an admin)? Go to the user sign in page.
-  var data = Auth.require("user", "user.html");
-  if (!data) { throw new Error("not signed in"); }
-
+  var KEY = "profileData";
+  var data = load();
   var form = document.getElementById("f");
   var err = document.getElementById("err");
   var ok = document.getElementById("ok");
 
-  var FIELDS = ["first", "last", "dob", "sex", "email", "phone", "street", "brgy", "city"];
+  function load() {
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(defaults));
+  }
 
-  // Older accounts may only have a full name; split it into first/last
-  function getFirst(d) {
-    if (d.first !== undefined) return d.first;
-    var p = String(d.name || "").trim().split(/\s+/);
-    return p.length > 1 ? p.slice(0, -1).join(" ") : (p[0] || "");
-  }
-  function getLast(d) {
-    if (d.last !== undefined) return d.last;
-    var p = String(d.name || "").trim().split(/\s+/);
-    return p.length > 1 ? p[p.length - 1] : "";
-  }
-  function valueOf(d, k) {
-    if (k === "first") return getFirst(d);
-    if (k === "last") return getLast(d);
-    return d[k] || "";
+  function store() {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
   }
 
   function calcAge(dob) {
@@ -173,25 +124,26 @@
       { year: "numeric", month: "long", day: "numeric" });
   }
 
-  function initials(d) {
-    var f = getFirst(d), l = getLast(d);
-    return ((f[0] || "") + (l[0] || "")).toUpperCase();
+  function initials(name) {
+    var parts = name.trim().split(/\s+/);
+    var s = parts[0] ? parts[0][0] : "";
+    if (parts.length > 1) s += parts[parts.length - 1][0];
+    return s.toUpperCase();
   }
 
   function show() {
     document.querySelectorAll("[data-view]").forEach(function (el) {
       var k = el.getAttribute("data-view");
-      el.textContent = k === "dob" ? prettyDate(data.dob) : valueOf(data, k);
+      el.textContent = k === "dob" ? prettyDate(data.dob) : data[k];
     });
     document.getElementById("age").textContent = calcAge(data.dob);
-    document.getElementById("avatar").textContent = initials(data);
+    document.getElementById("avatar").textContent = initials(data.name);
   }
 
   function fill() {
-    FIELDS.forEach(function (k) {
-      document.getElementById(k).value = valueOf(data, k);
+    ["name", "dob", "sex", "email", "password"].forEach(function (k) {
+      document.getElementById(k).value = data[k];
     });
-    document.getElementById("password").value = "";
     document.getElementById("age").textContent = calcAge(data.dob);
   }
 
@@ -201,70 +153,49 @@
     if (on) {
       ok.textContent = "";
       fill();
-      document.getElementById("first").focus();
+      document.getElementById("name").focus();
     } else {
       show();
     }
   }
 
-  // Live age while editing the birthdate
+  // Live age while editing the birthday
   document.getElementById("dob").addEventListener("input", function () {
     document.getElementById("age").textContent = calcAge(this.value);
   });
 
   document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
   document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
-  document.getElementById("signout").addEventListener("click", function () { Auth.logout(); });
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    save();
-  });
-
-  function val(id) { return document.getElementById(id).value.trim(); }
-  function fail(id, message) {
-    err.textContent = message;
-    document.getElementById(id).focus();
-  }
 
   function save() {
-    err.textContent = "";
-    var first = val("first"), last = val("last");
+    var name = document.getElementById("name").value.trim();
     var dob = document.getElementById("dob").value;
     var sex = document.getElementById("sex").value;
-    var email = val("email"), phone = val("phone");
-    var street = val("street"), brgy = val("brgy"), city = val("city");
+    var email = document.getElementById("email").value.trim();
     var pass = document.getElementById("password").value;
 
-    if (!first)  return fail("first", "Enter your first name.");
-    if (!last)   return fail("last", "Enter your last name.");
-    if (!dob)    return fail("dob", "Enter your birthdate.");
-    if (new Date(dob) > new Date()) return fail("dob", "Birthdate cannot be in the future.");
-    if (!email)  return fail("email", "Enter your email.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("email", "Enter a valid email address.");
-    if (!phone)  return fail("phone", "Enter your mobile number.");
-    if (!/^(09|\+639)\d{9}$/.test(phone.replace(/[\s-]/g, ""))) return fail("phone", "Enter a valid mobile number, like 09XX XXX XXXX.");
-    if (!street) return fail("street", "Enter your street address.");
-    if (!brgy)   return fail("brgy", "Enter your barangay.");
-    if (!city)   return fail("city", "Enter your city.");
-    if (pass !== "" && pass.length < 6) return fail("password", "Use a password with at least 6 characters.");
+    if (name === "" || dob === "" || email === "" || pass === "") {
+      err.textContent = "Fill in every field.";
+      return false;
+    }
+    if (new Date(dob) > new Date()) {
+      err.textContent = "Birthday cannot be in the future.";
+      return false;
+    }
+    if (email.indexOf("@") < 1 || email.indexOf(".") < 0) {
+      err.textContent = "Enter a valid email address.";
+      return false;
+    }
+    if (pass.length < 6) {
+      err.textContent = "Use a password with at least 6 characters.";
+      return false;
+    }
 
-    // Update the signed-in account; username and role stay the same
-    var updated = Object.assign({}, data, {
-      name: first + " " + last,
-      first: first, last: last,
-      dob: dob, sex: sex,
-      email: email, phone: phone,
-      street: street, brgy: brgy, city: city,
-      password: pass === "" ? data.password : pass
-    });
-
-    var msg = Auth.update(updated);
-    if (msg) { err.textContent = msg; return; }
-
-    data = Auth.current();
+    data = { name: name, dob: dob, sex: sex, email: email, password: pass };
+    store();
     setEditing(false);
     ok.textContent = "Your profile was updated.";
+    return false;
   }
 
   show();
