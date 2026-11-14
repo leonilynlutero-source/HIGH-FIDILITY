@@ -2,66 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin log in</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin sign in</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png" type="image/png">
 </head>
 <body data-role="admin">
 <main>
   <section id="login">
-    <a class="back" href="login.html">&larr; Change role</a>
-    <h1 id="title">Log in as Admin</h1>
-    <p class="sub">School project demo. Use a fake email and password.</p>
+    <h1>Sign in as Admin</h1>
+    <p class="sub">School project demo. Continue to enter your admin details.</p>
 
-    <form id="f">
-      <label class="f">Email
-        <input type="email" id="u" autocomplete="email" required>
-      </label>
-      <label class="f">Password
-        <input type="password" id="p" autocomplete="current-password" required>
-      </label>
-      <p class="ok" id="ok" role="status"></p>
-      <p class="err" id="err" role="alert"></p>
-      <button class="go" id="go" type="submit">Log in</button>
-    </form>
+    <div class="roles">
+      <button class="role" type="button" onclick="location.href='admin.html'">
+        <b>Admin</b>
+        <small>Manage the system</small>
+      </button>
+    </div>
 
-    <p class="signup">Don't have an account? <a href="admin-signup.html">Create account</a></p>
+    <p class="signup">Not an admin? <a href="user.html?role=user">Sign in as user</a></p>
   </section>
 </main>
-
-<script src="auth.js"></script>
-<script>
-  var err = document.getElementById("err");
-  var ok = document.getElementById("ok");
-
-  if (typeof Auth === "undefined") {
-    err.textContent = "auth.js is missing. Put auth.js in the same folder as this page.";
-    document.getElementById("go").disabled = true;
-  }
-
-  if (new URLSearchParams(window.location.search).get("created") === "1") {
-    ok.textContent = "Account created. You can log in now.";
-  }
-
-  document.getElementById("f").addEventListener("submit", function (e) {
-    e.preventDefault();
-    err.textContent = "";
-    ok.textContent = "";
-
-    var uEl = document.getElementById("u");
-    var pEl = document.getElementById("p");
-    var email = uEl.value.trim();
-    var password = pEl.value;
-
-    if (!email) { err.textContent = "Enter your email."; uEl.focus(); return; }
-    if (!password) { err.textContent = "Enter your password."; pEl.focus(); return; }
-
-    var msg = Auth.login(email, password, "admin");
-    if (msg) { err.textContent = msg; return; }
-
-    window.location.href = "home-admin.html";
-  });
-</script>
 </body>
 </html>
