@@ -91,10 +91,8 @@
   var data = Auth.require(null, "login.html");
   if (!data) { throw new Error("not signed in"); }
 
-  var isAdmin = data.role === "admin";
-  document.getElementById("backHome").href = isAdmin ? "home-admin.html" : "home.html";
-  document.getElementById("signout").href = isAdmin ? "admin.html" : "user.html";
-
+  var isAdmin = data.role === "user";
+  document.getElementById("backHome").href = "home.html";
   var form = document.getElementById("f");
   var err = document.getElementById("err");
   var ok = document.getElementById("ok");
