@@ -47,6 +47,7 @@
 <script>
   // File name of your admin log in page
   var ADMIN_LOGIN = "admin.html";
+  var role = document.body.dataset.role;
 
   document.getElementById("backLink").href = ADMIN_LOGIN;
   var err = document.getElementById("err");
@@ -68,7 +69,7 @@
     if (pass.length < 6) { err.textContent = "Use a password with at least 6 characters."; return; }
     if (pass !== confirm) { err.textContent = "Passwords do not match."; return; }
 
-    var msg = Auth.signup({ name: name, dob: dob, sex: sex, email: email, password: pass });
+    var msg = Auth.signup({ name: name, dob: dob, sex: sex, email: email, password: pass, role: role });
     if (msg) { err.textContent = msg; return; }
 
     alert("Account created! You can log in now.");
