@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My profile</title>
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="LOGO.png" type="image/png">
+<link rel="icon" href="LOGO.png">
 </head>
 <body class="wide profile">
 <main>
@@ -87,8 +87,11 @@
     throw new Error("auth.js missing");
   }
 
-  var isAdmin = data.role === "user";
-  document.getElementById("backHome").href = "home.html";
+  // Loads the account that just signed up or signed in.
+  // Nobody signed in (or an admin)? Go to the user sign in page.
+  var data = Auth.require("user", "user.html");
+  if (!data) { throw new Error("not signed in"); }
+
   var form = document.getElementById("f");
   var err = document.getElementById("err");
   var ok = document.getElementById("ok");
