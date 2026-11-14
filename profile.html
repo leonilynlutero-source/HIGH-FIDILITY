@@ -7,7 +7,60 @@
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png" type="image/png">
 </head>
-<body class="wide profile">
+<body class="wide profile">    err.textContent = "";
+    if (on) {
+      ok.textContent = "";
+      fill();
+      document.getElementById("name").focus();
+    } else {
+      show();
+    }
+  }
+
+  // Live age while editing the birthday
+  document.getElementById("dob").addEventListener("input", function () {
+    document.getElementById("age").textContent = calcAge(this.value);
+  });
+
+  document.getElementById("editBtn").addEventListener("click", function () { setEditing(true); });
+  document.getElementById("cancelBtn").addEventListener("click", function () { setEditing(false); });
+
+  function save() {
+    var name = document.getElementById("name").value.trim();
+    var dob = document.getElementById("dob").value;
+    var sex = document.getElementById("sex").value;
+    var email = document.getElementById("email").value.trim();
+    var pass = document.getElementById("password").value;
+
+    if (name === "" || dob === "" || email === "" || pass === "") {
+      err.textContent = "Fill in every field.";
+      return false;
+    }
+    if (new Date(dob) > new Date()) {
+      err.textContent = "Birthday cannot be in the future.";
+      return false;
+    }
+    if (email.indexOf("@") < 1 || email.indexOf(".") < 0) {
+      err.textContent = "Enter a valid email address.";
+      return false;
+    }
+    if (pass.length < 6) {
+      err.textContent = "Use a password with at least 6 characters.";
+      return false;
+    }
+
+    data = { name: name, dob: dob, sex: sex, email: email, password: pass };
+    store();
+    setEditing(false);
+    ok.textContent = "Your profile was updated.";
+    return false;
+  }
+
+  show();
+</script>
+</body>
+</html>
+      
 <main>
   <header class="head">
     <div class="who">
