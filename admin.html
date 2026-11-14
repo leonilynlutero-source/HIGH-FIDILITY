@@ -3,77 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Create admin account</title>
+<title>Barangay Complaint and Incident Report System</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="LOGO.png" type="image/png">
 </head>
 <body data-role="admin">
 <main>
-  <section>
-    <a class="back" id="backLink" href="admin.html">&larr; Back to log in</a>
-    <h1>Create admin account</h1>
-    <p class="sub">School project demo. Use a fake email and password.</p>
+  <section id="login">
+    <a class="back" href="login.html">&larr; Change role</a>
+    <h1 id="title">Log in as Admin</h1>
+    <p class="sub" id="sub">School project demo. Use a fake email and password.</p>
 
     <form id="f" novalidate>
-      <label class="f">Name
-        <input type="text" id="name" autocomplete="name">
-      </label>
-      <label class="f">Birthday
-        <input type="date" id="dob" autocomplete="bday">
-      </label>
-      <label class="f">Sex
-        <select id="sex">
-          <option>Female</option>
-          <option>Male</option>
-          <option>Prefer not to say</option>
-        </select>
-      </label>
       <label class="f">Email
-        <input type="email" id="email" autocomplete="email">
+        <input type="email" id="u" autocomplete="email">
       </label>
       <label class="f">Password
-        <input type="password" id="password" autocomplete="new-password">
-      </label>
-      <label class="f">Confirm password
-        <input type="password" id="confirm" autocomplete="new-password">
+        <input type="password" id="p" autocomplete="current-password">
       </label>
       <p class="err" id="err" role="alert"></p>
-      <button class="go" type="submit">Create account</button>
+      <button class="go" id="go" type="submit">Log in</button>
     </form>
+
+    <p class="signup">Don't have an account? <a href="admin-signup.html">Create account</a></p>
   </section>
 </main>
 
 <script src="auth.js"></script>
 <script>
-  // File name of your admin log in page
-  var ADMIN_LOGIN = "admin.html";
   var role = document.body.dataset.role;
-
-  document.getElementById("backLink").href = ADMIN_LOGIN;
   var err = document.getElementById("err");
 
   document.getElementById("f").addEventListener("submit", function (e) {
     e.preventDefault();
     err.textContent = "";
 
-    var name = document.getElementById("name").value.trim();
-    var dob = document.getElementById("dob").value;
-    var sex = document.getElementById("sex").value;
-    var email = document.getElementById("email").value.trim();
-    var pass = document.getElementById("password").value;
-    var confirm = document.getElementById("confirm").value;
+    var email = document.getElementById("u").value.trim();
+    var password = document.getElementById("p").value;
 
-    if (!name || !dob || !email || !pass) { err.textContent = "Fill in every field."; return; }
-    if (new Date(dob) > new Date()) { err.textContent = "Birthday cannot be in the future."; return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Enter a valid email address."; return; }
-    if (pass.length < 6) { err.textContent = "Use a password with at least 6 characters."; return; }
-    if (pass !== confirm) { err.textContent = "Passwords do not match."; return; }
+    if (!email || !password) {
+      err.textContent = "Please enter your email and password.";
+      return;
+    }
 
-    var msg = Auth.signup({ name: name, dob: dob, sex: sex, email: email, password: pass, role: role });
+    var msg = Auth.login(email, password, role);
     if (msg) { err.textContent = msg; return; }
 
-    alert("Account created! You can log in now.");
-    window.location.href = ADMIN_LOGIN;
+    window.location.href = "home-admin.html";
   });
 </script>
 </body>
